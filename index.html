@@ -155,6 +155,10 @@ $(function(){
       redraw_tracks(width, selected_id)
    })
    
+   $('#rate').change(function(){
+      audio.playbackRate = $(this).val() - 0
+   })
+   
    $('#play').click(function(e){
       var left = e.pageX - $(this).offset().left 
       audio.currentTime = left * (audio.duration / $(this).width())
@@ -213,7 +217,8 @@ $(function(){
 <a href="#"id="add_track">Add Object</a>
 <br>
 Zoom<input type="text" id="zoom" />
-
+<br>
+rate<input type="text" id="rate" />
 
 
 </body>
