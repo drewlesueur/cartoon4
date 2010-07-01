@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+<head>
+<style>
+#play {
+  width: 100%;
+  background-color: #eeeeee;
+  height: 20px;
+  position: relative
+}
+
+.track {
+  width: 100%;
+  background-color: rgb(76,69,55);
+  height: 20px;
+  position: relative;
+  border-bottom: 1px solid rgb(157,165,154);
+}
+
+.selected {
+  background-color: rgb(176, 169, 155) !important;
+}
+
+
+
+#needle {
+  width : 5px;
+  background-color: green;
+  height: 20px;
+  position: absolute;
+}
+
+#tracks {
+  height: 200px;
+  overflow: scroll;
+}
+
+.move {
+  background-color: rgb(247,201,0);
+  position: absolute;
+  height: 20px;
+}
+
+</style>
+<script src="jquery.js"></script>
+<script src="util.js"></script>
+<script>
+$(function(){
+
+  current_track = "";
+  moves = {}
+  var playing;
+  var audio = $('#main-song')[0]
+  var last_key = ""
+  
+  $(document).keydown(function(e){
+      
+      if (e.keyCode == last_key) return;
+      last_key = e.keyCode
+      //last key deal because keydown is fired as you hold the key down
+      
+      if (playing == true) {
+          moves[current_track].push(audio.currentTime)
+      }
+      
+  }).keyup(function(){
+      last_key = "";
+      if (playing == true) {
+          moves[current_track].push(audio.currentTime)
+      }
+      
+      var these_moves = moves[current_track]
+      var last_move_time = _s(these_moves, -1)[0]
+      var second_last_move_time = _s(these_moves, -2,1)[0]
+      var track = $('#' + current_track)
+      put_move(last_move_time, second_last_move_time , track)
+      
+      
+  })
+  
+  function put_move(last_move_time, second_last_move_time, track) {
+       var duration_width_ratio =   track.width() / audio.duration
+      //console.log(audio.duration)
+      //console.log(track.width())
+      
+      var left = second_last_move_time * duration_width_ratio;
+      var width = (last_move_time - second_last_move_time) * duration_width_ratio
+      //console.log(duration_width_ratio)
+      //console.log(left)
+      if (width < 1) {
+        width = 1;
+      }
+      var move = $('<div id="" class="move" style="left: '+left+'px; width:'+width+'px;"></div>')
+      track.append(move)
+  }
+  
+  
+  function setPlayHead(){
+     
+     var duration = audio.duration
+     var currentTime = audio.currentTime
+     //console.log(currentTime/duration)
+     var width = $("#play").width()
+     var pos = currentTime / duration * width
+     $('#needle').css("left", pos + "px")
+     $('#time').text(audio.currentTime)
+     
+  }
+  
+      var needle_interval;
+      //var audio = $("<audio id='main-song'></audio>")
+      $(audio).bind('canplaythrough', function(){
+          this.play()
+      }).bind('play', function(){
+          playing = true;
+          needle_interval = setInterval(setPlayHead, 10)
+      }).bind("pause", function(){
+          playing = false;
+          //clearTimeout(needle_interval)
+      })
+      
+      
+      $('#tracks').click(function(e){
+          if (!$(e.target).is(".track")) return;
+          $('.track').removeClass('selected')
+          $(e.target).addClass('selected')
+          
+      })
+      
+      $('#add_track').click(function(e){
+          //console.log($(e.target).is(".track"))
+          
+          var id = (new Date()).getTime()
+          $('#tracks').append('<div class="track" id="'+id+'">')
+          current_track = id;
+          moves[id] = []
+          $('.track').removeClass("selected")
+          $('#' + id).addClass('selected')
+          return false
+      })
+      
+   $('#zoom').change(function(){
+      var base = 500;
+      var zoom = $(this).val()
+      $('.track, #play').css('width', (zoom * base) + "px")
+      redraw_tracks()
+      
+   })
+   
+   function redraw_tracks() {
+      $('.track').remove();
+      
+      for (var i in moves) {
+          var track = $('<div class="track" id="'+i+'">')
+          var these_moves = moves[i]
+          for (var j in these_moves) {
+              
+          }
+          
+          $('#tracks')
+      }
+      
+   }
+   
+   $('#add_track').click()
+  /*
+  var canvas = $('#canvas')[0]
+  var ctx = canvas.getContext("2d")
+  ctx.fillStyle = "#ff1100";
+  //ctx.fillRect(0,0,30,30)
+  
+  var img = new Image()
+  img.onload = function(){
+      ctx.drawImage(img,0,0)
+  }
+  img.src = "test.svg"
+  */
+  
+  
+})
+</script>
+</head>
+
+<body>
+<audio  id="main-song" controls=true src="alma_25.mp3"></audio>
+
+<div id="time"></div>
+
+
+
+<div id="tracks">
+<div id="play">
+<div id="needle"></div>
+</div>
+</div>
+<a href="#"id="add_track">Add track</a><br>
+<a href="#"id="add_track">Add Object</a>
+<br>
+Zoom<input type="text" id="zoom" />
+
+
+
+</body>
+
+
+</html>
