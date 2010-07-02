@@ -25,7 +25,7 @@
 #stage {
 width: 100%;
 border: 1px solid black;
-height: 800px;
+height: 200px;
 position: relative;
 }
 
@@ -110,7 +110,7 @@ $(function(){
 
   $(document.body).click(function(e){
       if (!$(e.target).is(".move, .track")) {
-        $('.move-selected').removeClass("move-selected")
+        //$('.move-selected').removeClass("move-selected")
         //$('.selected').removeClass("selected")
       }
   })
@@ -190,7 +190,7 @@ $(function(){
            var resizer_height = $(resizer).height()
            var offset_left = $(obj).offset().left - parent_offset_left
            var offset_top = $(obj).offset().top - parent_offset_top
-            console.log(start_offset_left)
+            
             function mousemove(e){
               $(obj).css("width", (e.pageX - parent_offset_left + resizer_width - start_offset_left) - offset_left + "px")
               $(obj).css("height", (e.pageY - parent_offset_top + resizer_height - start_offset_top) - offset_top + "px")
@@ -222,7 +222,7 @@ $(function(){
            var resizer_height = $(resizer).height()
            var offset_left = $(obj).offset().left - parent_offset_left
            var offset_top = $(obj).offset().top - parent_offset_top
-            console.log(start_offset_left)
+            
             function mousemove(e){
               $(obj).css("width", (e.pageX - parent_offset_left + resizer_width - start_offset_left) - offset_left + "px")
               //$(obj).css("height", (e.pageY - parent_offset_top + resizer_height - start_offset_top) - offset_top + "px")
@@ -249,6 +249,7 @@ $(function(){
   var audio = $('#main-song')[0]
   var last_key = ""
   var object_count = 0;
+  var move_count = 0;
   var needle_interval;
   objects = {}
    
@@ -266,7 +267,7 @@ $(function(){
       
       
       moves[current_track].push(audio.currentTime)
-      console.log(audio.currentTime)
+      
       
       
   }).keyup(function(e){
@@ -298,7 +299,7 @@ $(function(){
         width = 1;
       }
       
-      var move = $('<div id="" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"></div>')
+      var move = $('<div id="move_'+move_count+'" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"></div>')
       track.append(move)
       
       function update_move(obj) {
@@ -314,6 +315,7 @@ $(function(){
       }
       resizable_x(move, update_move)
       draggable_x(move, update_move)
+      move_count++;
   }
   
   
@@ -356,11 +358,23 @@ $(function(){
              if (on_what != "start") {
                 audio.currentTime = $(e.target).attr('data-start')
                 $(e.target).attr('data-on', 'start')
+                
+                
+                
              } else {
                 audio.currentTime = $(e.target).attr('data-end')
                 $(e.target).attr('data-on', 'end')
              }
              
+             //applying the objects css at that time
+             for (var i in objects) {
+                var my_moves = objects[i]
+                var data_on_abbr = $(e.target).attr('data-on') == "start" ? "s" : "e"
+                var my_css = my_moves[e.target.id + "#" + data_on_abbr]
+                $('#' + i).css(my_css || {})
+                
+                
+             }
              
           } 
           
@@ -420,7 +434,13 @@ $(function(){
       objects[id] = {}
       
       function save_state(obj) {
-          objects[id][audio.currentTime] = get_relevant_css(obj)
+          //switching from current time to go based off selected move
+          //objects[id][audio.currentTime] = get_relevant_css(obj)
+          var selected_move = $('.move-selected')
+          var selected_move_id = selected_move.attr('id')
+          var selected_move_on = selected_move.attr('data-on') == "end" ? "e" : "s"
+          objects[id][selected_move_id + "#" + selected_move_on] = get_relevant_css(obj)
+          
       }
       draggable('#' + id, save_state)
       
@@ -431,6 +451,7 @@ $(function(){
    })
    
    function redraw_tracks(width, selected_id) {
+      move_count = 0;
       $('.track').remove();
       
       for (var i in moves) {
@@ -471,11 +492,17 @@ $(function(){
       var css = []
       for (var i in objects) {
           css.push("@-webkit-keyframes kf_" + i + ' {');
-          var times = objects[i]
-          for (var time in times) {
+          var moves_list = objects[i]
+          for (var move in moves_list) {
+              var move_id = _s(move,0,-2)
+              var data_on = _s(move,-1) == "e" ? "end" : "start"
+              console.log(move_id)
+              console.log(data_on)
+              var time = $('#' + move_id).attr('data-' + data_on);
+              
               var percent = (time / audio.duration * 100) + "%"
               css.push("  " + percent + " {")
-              css_rules = times[time];
+              css_rules = moves_list[move];
               for (var css_rule in css_rules) {
                 css.push("    " + css_rule + ": " + css_rules[css_rule] + ";");
               }
