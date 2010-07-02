@@ -199,10 +199,7 @@ $(function(){
             $(document.body).bind("mousemove", mousemove)
             $(document.body).bind("mouseup", mouseup)
            
-          
        })
-       
-   
    }
    
    
@@ -216,7 +213,9 @@ $(function(){
   var playing;
   var audio = $('#main-song')[0]
   var last_key = ""
-  
+   var object_count = 0;
+   var needle_interval;
+   
   $(document).keydown(function(e){
       if ($(e.target).is("input")) return;
       if (playing == false) return;
@@ -292,7 +291,7 @@ $(function(){
      
   }
   
-      var needle_interval;
+      
       //var audio = $("<audio id='main-song'></audio>")
       $(audio).bind('canplaythrough', function(){
           this.play()
@@ -360,7 +359,7 @@ $(function(){
    })
    
    
-   var object_count = 0;
+  
    
    $('#add_object').click(function(e){
       $('#stage').append('<div id="obj_'+object_count+'" class="object">har</div>');
@@ -386,6 +385,24 @@ $(function(){
       }
       
    }
+   
+   
+   
+   $('#save').click(function(e){
+      e.preventDefault();
+      $('#saved_moves').val(JSON.stringify(moves))
+   })
+   
+   $('#load').click(function(e){
+      e.preventDefault()
+      current_track = "";
+      moves = JSON.parse($('#saved_moves').val())
+      redraw_tracks()
+      last_key = ""
+      
+      
+   
+   })
    
    $('#add_track').click()
   /*
@@ -424,13 +441,13 @@ $(function(){
 </div>
 </div>
 <a href="#"id="add_track">Add track</a><br />
-<a href="#"id="add_track">Add Object</a>
-<br />
-Zoom<input type="text" id="zoom" />
-<br />
-rate<input type="text" id="rate" />
 
-<embed> 
+<br />
+Zoom<input type="text" id="zoom" /><br>
+rate<input type="text" id="rate" /><br>
+<a href="#" id="save">save</a> <br>
+<textarea id="saved_moves"></textarea>
+<a href="#" id="load">load</a> <br>
 
 </body>
 
