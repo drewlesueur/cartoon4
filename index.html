@@ -92,7 +92,7 @@ position: relative;
   -webkit-animation-name: bounce;
  -webkit-animation-duration: 4s;
  -webkit-animation-iteration-count: 10;
- -webkit-animation-direction: alternate;
+ /*-webkit-animation-direction: alternate;*/
  border-radius: 10px;
   
 }
@@ -466,6 +466,35 @@ $(function(){
       
    })
    
+   $('#generate_css').click(function(e){
+      e.preventDefault()
+      var css = []
+      for (var i in objects) {
+          css.push("@-webkit-keyframes kf_" + i + ' {');
+          var times = objects[i]
+          for (var time in times) {
+              var percent = (time / audio.duration * 100) + "%"
+              css.push("  " + percent + " {")
+              css_rules = times[time];
+              for (var css_rule in css_rules) {
+                css.push("    " + css_rule + ": " + css_rules[css_rule] + ";");
+              }
+              css.push("  }")
+          }
+          css.push('}')
+          
+          css.push("#" + i + " {")
+            css.push("  -webkit-animation-name: kf_"+i+";")
+            css.push("-webkit-animation-duration: " + audio.duration + "s;") 
+            css.push("-webkit-animation-iteration-count: 1;")
+          css.push("}") 
+          
+      }
+      generated_css = css.join('\n');
+      console.log(generated_css)
+      
+   })
+   
    $('#add_track').click()
   /*
   var canvas = $('#canvas')[0]
@@ -487,6 +516,7 @@ $(function(){
 
 <body>
 <a href="#" id="add_object">Add object</a>
+<a href="#" id="perform">Perform!</a>
 
   <div id="stage">
   <div id="test">yo</div>
@@ -508,8 +538,9 @@ $(function(){
 Zoom<input type="text" id="zoom" /><br>
 <input type="text" value="1" id="rate" /><br>
 <a href="#" id="save">save</a> <br>
-<textarea id="saved_moves"></textarea>
+<textarea id="saved_moves"></textarea><br>
 <a href="#" id="load">load</a> <br>
+<a href="#" id="generate_css">Generate CSS</a>
 
 </body>
 
