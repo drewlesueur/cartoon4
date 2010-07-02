@@ -30,7 +30,7 @@ position: relative;
 }
 
 .object {
-   resize: both;
+   //resize: both;
    overflow: auto;
   
    background-color: red;
@@ -65,8 +65,10 @@ position: relative;
   background-color: green;
   position: absolute;
   right: 0px;
-  width: 4px;
-  height: 15px;
+  bottom: 0px;
+  width: 5px;
+  height: 5px;
+  
 }
 
 @-webkit-keyframes bounce {
@@ -102,6 +104,7 @@ position: relative;
 <script src="jquery.js"></script>
 <script src="util.js"></script>
 <script>
+//{"1278100915669":[1.5940380096435547,1.6890380382537842,1.8050379753112793,1.8800380229949951,1.9745570421218872,2.068557024002075,2.2215569019317627,2.347076892852783,2.480077028274536,2.6855969429016113,2.891597032546997,3.007596969604492,3.2041149139404297,3.2671151161193848,3.385114908218384,3.7266340255737305,3.839154005050659,4.1361541748046875,4.263672828674316,4.485672950744629,4.616191864013672,5.031713008880615,5.149713039398193,5.629749774932861,5.9457502365112305,6.3212690353393555,6.497788906097412,6.590788841247559,6.676788806915283,6.879309177398682,7.0073089599609375,7.148828029632568,7.2068281173706055,7.329827785491943,7.532345771789551,8.2363862991333,8.579385757446289,8.664904594421387,8.741905212402344,8.877904891967773,8.95290470123291,9.056425094604492,9.192424774169922,9.278425216674805,9.349943161010742,9.45494270324707,9.609943389892578,9.796462059020996,9.915461540222168,10.133980751037598,10.263980865478516,10.775501251220703,11.223539352416992,11.343539237976074,11.436538696289062,11.627058029174805,11.743058204650879,11.935057640075684,12.063577651977539,12.24357795715332,12.37309741973877,12.553096771240234,12.694616317749023,12.982616424560547,13.155136108398438,13.477655410766602,13.576655387878418,14.531693458557129,14.664214134216309,14.769213676452637,14.84421443939209,14.958732604980469,15.10273265838623,15.199732780456543,15.290251731872559,15.443251609802246,15.57125186920166,15.943770408630371,17.1888484954834,17.433849334716797,17.575366973876953,17.79436683654785,17.94188690185547,18.121885299682617,18.289405822753906,18.48140525817871,18.617406845092773,19.549962997436523]}
 $(function(){
 
 
@@ -153,7 +156,7 @@ $(function(){
           var start_offset_left = e.pageX - $(obj).offset().left //- parent_offset_left
           var start_offset_top = e.pageY - $(obj).offset().top //- parent_offset_top
           function mousemove(e){
-              var new_left = e.pageX - parent_offset_left
+              var new_left = e.pageX - parent_offset_left - start_offset_left
               var new_top = e.pageY - parent_offset_top - start_offset_top
               $(obj).css("left", (new_left) + "px")
               $(obj).css("top", (new_top) + "px")
@@ -171,6 +174,38 @@ $(function(){
   }
    
    function resizable(el, func) {
+       var resizer = $('<div class="resizer"></div>')
+       $(el).append(resizer)
+       var obj = el;
+       $(resizer).mousedown(function(e){
+          e.preventDefault()
+          e.stopPropagation()
+           var parent_offset_left = $(obj).parent().offset().left
+           var parent_offset_top = $(obj).parent().offset().top
+           
+           var start_offset_left = e.pageX - $(this).offset().left //+ $(this).offset().left //- parent_offset_left
+           var start_offset_top = e.pageY - $(this).offset().top //+ $(this).offset().top
+           
+           var resizer_width = $(resizer).width();
+           var resizer_height = $(resizer).height()
+           var offset_left = $(obj).offset().left - parent_offset_left
+           var offset_top = $(obj).offset().top - parent_offset_top
+            console.log(start_offset_left)
+            function mousemove(e){
+              $(obj).css("width", (e.pageX - parent_offset_left + resizer_width - start_offset_left) - offset_left + "px")
+              $(obj).css("height", (e.pageY - parent_offset_top + resizer_height - start_offset_top) - offset_top + "px")
+              func && func(obj)
+            }
+            function mouseup(e){
+               $(document.body).unbind("mousemove", mousemove)
+            }
+            $(document.body).bind("mousemove", mousemove)
+            $(document.body).bind("mouseup", mouseup)
+           
+       })
+   }
+   
+      function resizable_x(el, func) {
        var resizer = $('<div class="resizer"></div>')
        $(el).append(resizer)
        var obj = el;
@@ -213,10 +248,14 @@ $(function(){
   var playing;
   var audio = $('#main-song')[0]
   var last_key = ""
-   var object_count = 0;
-   var needle_interval;
+  var object_count = 0;
+  var needle_interval;
+  objects = {}
    
   $(document).keydown(function(e){
+      if (e.keyCode == 8) {
+          $('.move-selected')
+      }
       if ($(e.target).is("input")) return;
       if (playing == false) return;
       
@@ -259,12 +298,8 @@ $(function(){
         width = 1;
       }
       
-      
-      var move = $('<div id="" class="move" style="left: '+left+'px; width:'+width+'px;"></div>')
+      var move = $('<div id="" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"></div>')
       track.append(move)
-      
-      
-      
       
       function update_move(obj) {
           var ratio = audio.duration / $(track).width()
@@ -273,8 +308,11 @@ $(function(){
           var new_last = (new_left + $(obj).width()) * ratio
           moves[id][index] = new_last
           moves[id][index - 1] = new_second_last
+          
+          $(obj).attr('data-start', new_second_last)
+          $(obj).attr('data-end', new_last)
       }
-      resizable(move, update_move)
+      resizable_x(move, update_move)
       draggable_x(move, update_move)
   }
   
@@ -297,6 +335,8 @@ $(function(){
           this.play()
       }).bind('play', function(){
           playing = true;
+          
+          audio.playbackRate = $('#rate').val() - 0 || 1
           needle_interval = setInterval(setPlayHead, 10)
       }).bind("pause", function(){
           playing = false;
@@ -311,6 +351,16 @@ $(function(){
              $('.move').removeClass("move-selected");
              
              $(e.target).addClass("move-selected");
+             
+             var on_what = $(e.target).attr('data-on')
+             if (on_what != "start") {
+                audio.currentTime = $(e.target).attr('data-start')
+                $(e.target).attr('data-on', 'start')
+             } else {
+                audio.currentTime = $(e.target).attr('data-end')
+                $(e.target).attr('data-on', 'end')
+             }
+             
              
           } 
           
@@ -348,10 +398,6 @@ $(function(){
       redraw_tracks(width, selected_id)
    })
    
-   $('#rate').change(function(){
-      audio.playbackRate = $(this).val() - 0
-      console.log(audio.playbackRate)
-   })
    
    $('#play').click(function(e){
       var left = e.pageX - $(this).offset().left 
@@ -359,11 +405,27 @@ $(function(){
    })
    
    
-  
+  function get_relevant_css(obj) {
+      return {
+        'top' : $(obj).css('top'),
+        'left' : $(obj).css('left'),
+        'width' : $(obj).css("width"),
+        'height' : $(obj).css("height"),
+      }
+  }
    
    $('#add_object').click(function(e){
-      $('#stage').append('<div id="obj_'+object_count+'" class="object">har</div>');
-      draggable('#obj_' + object_count)
+      var id = 'obj_'+object_count
+      $('#stage').append('<div id="'+id+'" class="object">har</div>');
+      objects[id] = {}
+      
+      function save_state(obj) {
+          objects[id][audio.currentTime] = get_relevant_css(obj)
+      }
+      draggable('#' + id, save_state)
+      
+      resizable('#' + id, save_state)
+      
       object_count++
       return false;
    })
@@ -386,7 +448,9 @@ $(function(){
       
    }
    
-   
+   $('#rate').click(function(){
+      audio.playbackRate = $(this).val() - 0 || 1
+   })
    
    $('#save').click(function(e){
       e.preventDefault();
@@ -400,8 +464,6 @@ $(function(){
       redraw_tracks()
       last_key = ""
       
-      
-   
    })
    
    $('#add_track').click()
@@ -430,7 +492,7 @@ $(function(){
   <div id="test">yo</div>
   </div>
 
-<audio  id="main-song" controls=true src="caribe.mp3"></audio>
+<audio  id="main-song" controls=true src="estuche.mp3"></audio>
 
 
 <div id="time"></div>
@@ -444,7 +506,7 @@ $(function(){
 
 <br />
 Zoom<input type="text" id="zoom" /><br>
-rate<input type="text" id="rate" /><br>
+<input type="text" value="1" id="rate" /><br>
 <a href="#" id="save">save</a> <br>
 <textarea id="saved_moves"></textarea>
 <a href="#" id="load">load</a> <br>
@@ -453,3 +515,5 @@ rate<input type="text" id="rate" /><br>
 
 
 </html>
+
+
