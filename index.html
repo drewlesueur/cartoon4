@@ -22,6 +22,20 @@
 }
 
 
+#stage {
+width: 100%;
+border: 1px solid black;
+height: 800px;
+position: relative;
+}
+
+.object {
+   resize: both;
+   overflow: auto;
+  
+   background-color: red;
+   position: absolute;
+}
 
 #needle {
   width : 5px;
@@ -41,12 +55,115 @@
   height: 20px;
 }
 
+.move-selected {
+  border: 1px solid rgb(255,255,100);
+  margin: -1px;
+}
+
+
+@-webkit-keyframes bounce {
+ from {
+   left: 0px;
+ }
+ to {
+   left: 200px;
+ }
+}
+
+
+
+#test {
+  background-color: #778C88;
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  -webkit-box-shadow: rgba(0, 0, 0, 1) 0px 0px 10px;
+  
+  -webkit-animation-name: bounce;
+ -webkit-animation-duration: 4s;
+ -webkit-animation-iteration-count: 10;
+ -webkit-animation-direction: alternate;
+ border-radius: 10px;
+  
+}
+
+
+
+
 </style>
 <script src="jquery.js"></script>
 <script src="util.js"></script>
 <script>
 $(function(){
 
+  var lastSheet = document.styleSheets[document.styleSheets.length - 1]
+  lastSheet.insertRule("@-webkit-keyframes test2 { 0% { top: 0px; } 50.556% {left: 100px;} 100% {top: 100px;} }", lastSheet.cssRules.length);
+ //$('#test')[0].style.webkitAnimationName = 'test2'
+  $('#test').css({
+      '-webkit-animation-name' : 'test2',
+      '-webkit-animation-duration' : '0.5s',
+      '-webkit-animation-iteration-count' : '10'
+  })
+  
+
+  
+  
+   function draggable_x(el) {
+      $(el).mousedown(function(e){
+          var obj = this;
+          e.preventDefault()
+          var parent_offset_left = $(obj).parent().offset().left
+          var start_offset_left = e.pageX - $(obj).offset().left //- parent_offset_left
+          function mousemove(e){
+              $(obj).css("left", (e.pageX - parent_offset_left - start_offset_left) + "px")
+              
+          }
+          function mouseup(e){
+             $(document.body).unbind("mousemove", mousemove)
+          }
+          $(document.body).bind("mousemove", mousemove)
+          $(document.body).bind("mouseup", mouseup)
+      })
+   }
+   
+   
+     function draggable(el) {
+      $(el).mousedown(function(e){
+          var obj = this;
+          e.preventDefault()
+          var parent_offset_left = $(obj).parent().offset().left
+          var parent_offset_top = $(obj).parent().offset().top
+          var start_offset_left = e.pageX - $(obj).offset().left //- parent_offset_left
+          var start_offset_top = e.pageY - $(obj).offset().top //- parent_offset_top
+          function mousemove(e){
+              $(obj).css("left", (e.pageX - parent_offset_left - start_offset_left) + "px")
+              $(obj).css("top", (e.pageY - parent_offset_top - start_offset_top) + "px")
+          }
+          function mouseup(e){
+             $(document.body).unbind("mousemove", mousemove)
+          }
+          $(document.body).bind("mousemove", mousemove)
+          $(document.body).bind("mouseup", mouseup)
+      })
+  }
+   
+   function resizable(el) {
+       
+       function mousedown() {
+           
+      
+      
+       } 
+       $(el).mousedown(mousedown)
+   
+   }
+   
+   
+   
+   
+  
+  
+  
   current_track = "";
   moves = {}
   var playing;
@@ -82,15 +199,13 @@ $(function(){
   })
   
   function put_move(last_move_time, second_last_move_time, track) {
-        console.log(last_move_time, second_last_move_time)
+        
        var duration_width_ratio =   track.width() / audio.duration
-      //console.log(audio.duration)
-      //console.log(track.width())
+      
       
       var left = second_last_move_time * duration_width_ratio;
       var width = (last_move_time - second_last_move_time) * duration_width_ratio
-      //console.log(duration_width_ratio)
-      //console.log(left)
+      
       if (width < 1) {
         width = 1;
       }
@@ -98,6 +213,7 @@ $(function(){
       
       var move = $('<div id="" class="move" style="left: '+left+'px; width:'+width+'px;"></div>')
       track.append(move)
+      draggable_x(move)
   }
   
   
@@ -105,7 +221,7 @@ $(function(){
      
      var duration = audio.duration
      var currentTime = audio.currentTime
-     //console.log(currentTime/duration)
+     
      var width = $("#play").width()
      var pos = currentTime / duration * width
      $('#needle').css("left", pos + "px")
@@ -126,15 +242,25 @@ $(function(){
       })
       
       
-      $('#tracks').click(function(e){
+      $('#tracks').click(function(e) {
+          
+          
+          if ($(e.target).is(".move")) {
+             $(e.target).addClass("move-selected")
+          } 
+          
           if (!$(e.target).is(".track")) return;
+          
           $('.track').removeClass('selected')
           $(e.target).addClass('selected')
+          current_track = $(e.target).attr("id")
           
+          
+         
       })
       
       $('#add_track').click(function(e){
-          //console.log($(e.target).is(".track"))
+          
           
           var id = (new Date()).getTime()
           $('#tracks').append('<div class="track" id="'+id+'">')
@@ -142,6 +268,8 @@ $(function(){
           moves[id] = []
           $('.track').removeClass("selected")
           $('#' + id).addClass('selected')
+          
+          
           return false
       })
       
@@ -157,11 +285,22 @@ $(function(){
    
    $('#rate').change(function(){
       audio.playbackRate = $(this).val() - 0
+      console.log(audio.playbackRate)
    })
    
    $('#play').click(function(e){
       var left = e.pageX - $(this).offset().left 
       audio.currentTime = left * (audio.duration / $(this).width())
+   })
+   
+   
+   var object_count = 0;
+   
+   $('#add_object').click(function(e){
+      $('#stage').append('<div id="obj_'+object_count+'" class="object">har</div>');
+      draggable('#obj_' + object_count)
+      object_count++
+      return false;
    })
    
    function redraw_tracks(width, selected_id) {
@@ -202,11 +341,16 @@ $(function(){
 </head>
 
 <body>
-<audio  id="main-song" controls=true src="alma_25.mp3"></audio>
+<a href="#" id="add_object">Add object</a>
+
+  <div id="stage">
+  <div id="test">yo</div>
+  </div>
+
+<audio  id="main-song" controls=true src="caribe.mp3"></audio>
+
 
 <div id="time"></div>
-
-
 
 <div id="tracks">
 <div id="play">
@@ -219,6 +363,7 @@ $(function(){
 Zoom<input type="text" id="zoom" />
 <br>
 rate<input type="text" id="rate" />
+
 
 
 </body>
