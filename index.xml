@@ -65,7 +65,7 @@ position: relative;
   background-color: green;
   position: absolute;
   right: 0px;
-  width: 4px;
+  width: 10px;
   height: 15px;
 }
 
@@ -101,16 +101,9 @@ position: relative;
 </style>
 <script src="jquery.js"></script>
 <script src="util.js"></script>
-<script>
+<script><![CDATA[
 $(function(){
 
-
-  $(document.body).click(function(e){
-      if (!$(e.target).is(".move, .track")) {
-        $('.move-selected').removeClass("move-selected")
-        //$('.selected').removeClass("selected")
-      }
-  })
   var lastSheet = document.styleSheets[document.styleSheets.length - 1]
   lastSheet.insertRule("@-webkit-keyframes test2 { 0% { top: 0px; } 50.556% {left: 100px;} 100% {top: 100px;} }", lastSheet.cssRules.length);
  //$('#test')[0].style.webkitAnimationName = 'test2'
@@ -123,16 +116,15 @@ $(function(){
 
     
   
-   function draggable_x(el, func) {
+   function draggable_x(el) {
       $(el).mousedown(function(e){
           var obj = this;
           e.preventDefault()
           var parent_offset_left = $(obj).parent().offset().left
           var start_offset_left = e.pageX - $(obj).offset().left //- parent_offset_left
           function mousemove(e){
-              var new_left = e.pageX - parent_offset_left - start_offset_left
-              $(obj).css("left", (new_left) + "px")
-              func && func(obj)
+              $(obj).css("left", (e.pageX - parent_offset_left - start_offset_left) + "px")
+              
           }
           function mouseup(e){
              $(document.body).unbind("mousemove", mousemove)
@@ -143,24 +135,17 @@ $(function(){
    }
    
    
-     function draggable(el, func) {
+     function draggable(el) {
       $(el).mousedown(function(e){
           var obj = this;
           e.preventDefault()
           var parent_offset_left = $(obj).parent().offset().left
           var parent_offset_top = $(obj).parent().offset().top
-          
           var start_offset_left = e.pageX - $(obj).offset().left //- parent_offset_left
           var start_offset_top = e.pageY - $(obj).offset().top //- parent_offset_top
           function mousemove(e){
-              var new_left = e.pageX - parent_offset_left
-              var new_top = e.pageY - parent_offset_top - start_offset_top
-              $(obj).css("left", (new_left) + "px")
-              $(obj).css("top", (new_top) + "px")
-              
-              if (func) {
-                func(obj)
-              }
+              $(obj).css("left", (e.pageX - parent_offset_left - start_offset_left) + "px")
+              $(obj).css("top", (e.pageY - parent_offset_top - start_offset_top) + "px")
           }
           function mouseup(e){
              $(document.body).unbind("mousemove", mousemove)
@@ -170,7 +155,7 @@ $(function(){
       })
   }
    
-   function resizable(el, func) {
+   function resizable(el) {
        var resizer = $('<div class="resizer"></div>')
        $(el).append(resizer)
        var obj = el;
@@ -179,19 +164,16 @@ $(function(){
           e.stopPropagation()
            var parent_offset_left = $(obj).parent().offset().left
            var parent_offset_top = $(obj).parent().offset().top
-           
-           var start_offset_left = e.pageX - $(this).offset().left //+ $(this).offset().left //- parent_offset_left
-           var start_offset_top = e.pageY - $(this).offset().top //+ $(this).offset().top
-           
-           var resizer_width = $(resizer).width();
-           var resizer_height = $(resizer).height()
+           var start_offset_left = e.pageX - $(obj).offset().left //- parent_offset_left
+           var start_offset_top = e.pageY - $(obj).offset().top //- parent_offset_top
            var offset_left = $(obj).offset().left - parent_offset_left
-           var offset_top = $(obj).offset().top - parent_offset_top
-            console.log(start_offset_left)
+           var offset_top = $(obj).offset().top - parent_offset_left
             function mousemove(e){
-              $(obj).css("width", (e.pageX - parent_offset_left + resizer_width - start_offset_left) - offset_left + "px")
-              //$(obj).css("height", (e.pageY - parent_offset_top + resizer_height - start_offset_top) - offset_top + "px")
-              func && func(obj)
+              
+              console.log((e.pageX - parent_offset_left ) + " " + offset_left)
+              
+              $(obj).css("width", (e.pageX - parent_offset_left) - offset_left + "px")
+              //$(obj).css("top", (e.pageY - parent_offset_top - start_offset_top) - offset_top + "px")
             }
             function mouseup(e){
                $(document.body).unbind("mousemove", mousemove)
@@ -228,7 +210,6 @@ $(function(){
       
       
       moves[current_track].push(audio.currentTime)
-      console.log(audio.currentTime)
       
       
   }).keyup(function(e){
@@ -243,13 +224,13 @@ $(function(){
       var last_move_time = _s(these_moves, -1)[0]
       var second_last_move_time = _s(these_moves, -2,1)[0]
       var track = $('#' + current_track)
-      put_move(last_move_time, second_last_move_time , current_track, these_moves.length - 1)
+      put_move(last_move_time, second_last_move_time , track)
       
       
   })
   
-  function put_move(last_move_time, second_last_move_time, id, index) {
-       var track = $('#' + id)
+  function put_move(last_move_time, second_last_move_time, track) {
+        
        var duration_width_ratio =   track.width() / audio.duration
       
       
@@ -263,20 +244,8 @@ $(function(){
       
       var move = $('<div id="" class="move" style="left: '+left+'px; width:'+width+'px;"></div>')
       track.append(move)
-      
-      
-      
-      
-      function update_move(obj) {
-          var ratio = audio.duration / $(track).width()
-          var new_left = $(obj).position().left
-          var new_second_last = new_left * ratio
-          var new_last = (new_left + $(obj).width()) * ratio
-          moves[id][index] = new_last
-          moves[id][index - 1] = new_second_last
-      }
-      resizable(move, update_move)
-      draggable_x(move, update_move)
+      resizable(move)
+      draggable_x(move)
   }
   
   
@@ -379,7 +348,7 @@ $(function(){
           for (var move_index = 0; move_index < these_moves.length; move_index+=2) {
               
               
-              put_move(these_moves[move_index+1], these_moves[move_index], i, move_index + 1);
+              put_move(these_moves[move_index+1], these_moves[move_index], track);
           }
           
           $('#' + selected_id).addClass('selected')
@@ -403,7 +372,7 @@ $(function(){
   
   
 })
-</script>
+]]></script>
 </head>
 
 <body>
@@ -413,7 +382,7 @@ $(function(){
   <div id="test">yo</div>
   </div>
 
-<audio  id="main-song" controls=true src="caribe.mp3"></audio>
+<audio  id="main-song" controls="true" src="caribe.mp3"></audio>
 
 
 <div id="time"></div>
@@ -423,16 +392,24 @@ $(function(){
 <div id="needle"></div>
 </div>
 </div>
-<a href="#"id="add_track">Add track</a><br />
-<a href="#"id="add_track">Add Object</a>
+<a href="#" id="add_track">Add track</a><br />
 <br />
 Zoom<input type="text" id="zoom" />
 <br />
 rate<input type="text" id="rate" />
 
-<embed> 
 
+<!--<svg xmlns="http://www.w3.org/2000/svg" version="1.1"  
+viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"  
+style="width:100%; height:100%; position:absolute; top:0; left:0; z-index:-1;">  
+<linearGradient id="gradient">  
+<stop class="begin" offset="0%"/>  
+<stop class="end" offset="100%"/>  
+</linearGradient>  
+<rect x="0" y="0" width="100" height="100" style="fill:url(#gradient)" />  
+<circle cx="50" cy="50" r="30" style="fill:url(#gradient)" />  
+</svg> -->
+
+ 
 </body>
-
-
 </html>
