@@ -60,6 +60,10 @@ position: relative;
   margin: -1px;
 }
 
+.object-selected {
+  -webkit-box-shadow: rgba(0, 0, 0, 1) 0px 0px 10px;
+}
+
 
 .resizer {
   background-color: green;
@@ -319,8 +323,15 @@ $(function(){
   
   for (var i in relevant_css) {
       var attr = relevant_css[i]
-      $('#css_controls').append('<input type="text" placeholder="'+attr+'" data-css="'+attr+'">')
+      $('#css_controls').append(attr + '<input type="text" placeholder="'+attr+'" data-css="'+attr+'">')
   }
+  
+  $('#css_controls').keyup(function(e) {
+      if ($(e.target).is("input")) {
+            $('.object-selected').css($(e.target).attr('data-css'), $(e.target).val())
+            save_state($('.object-selected'))
+      }
+  })
   
    
   $(document).keydown(function(e){
@@ -508,18 +519,20 @@ $(function(){
   
   
     function save_state(obj) {
-          var id = $(obj).attr('id')
-          //switching from current time to go based off selected move
-          //objects[id][audio.currentTime] = get_relevant_css(obj)
-          
-          var selected_move = $('.move-selected')
-          if (selected_move.length == 0) {
-            return;
-          }
-          var selected_move_id = selected_move.attr('id')
-          var selected_move_on = selected_move.attr('data-on') == "end" ? "e" : "s"
-          objects[id][selected_move_id + "#" + selected_move_on] = get_relevant_css(obj)
-          
+    
+          $(obj).each(function(){
+              var id = $(this).attr('id')
+              //switching from current time to go based off selected move
+              //objects[id][audio.currentTime] = get_relevant_css(obj)
+              
+              var selected_move = $('.move-selected')
+              if (selected_move.length == 0) {
+                return;
+              }
+              var selected_move_id = selected_move.attr('id')
+              var selected_move_on = selected_move.attr('data-on') == "end" ? "e" : "s"
+              objects[id][selected_move_id + "#" + selected_move_on] = get_relevant_css(this)
+          })
     }
    
    $('#add_object').click(function(e){
@@ -541,7 +554,19 @@ $(function(){
       if ($(e.target).is('.object')) {
           $(e.target).text(prompt("text"))
       }
-      
+   })
+   
+   $('#stage').click(function(e){
+      $('.object-selected').removeClass('object-selected')
+      if ($(e.target).is(".object") || $(e.target).is(".object div")) {
+         $(e.target).addClass("object-selected")
+         for (var i in relevant_css) {
+            var attr = relevant_css[i]
+            var css_val = $(e.target).css(attr)
+            $("[data-css='"+attr+"']").val(css_val)
+            
+         }
+      } 
    })
    
    
