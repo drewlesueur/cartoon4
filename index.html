@@ -72,11 +72,23 @@ position: relative;
 }
 
 @-webkit-keyframes bounce {
- from {
+ 0% {
    left: 0px;
+   display: none;
  }
- to {
-   left: 200px;
+ 
+ 49.9999% {
+    opacity:0;
+    left: 400px;
+ }
+ 50% {
+    
+    left: 400px;
+    display: none;
+ }
+ 100%{
+   left: 800px;
+   display: none;
  }
 }
 
@@ -88,10 +100,10 @@ position: relative;
   width: 100px;
   height: 100px;
   -webkit-box-shadow: rgba(0, 0, 0, 1) 0px 0px 10px;
-  
   -webkit-animation-name: bounce;
- -webkit-animation-duration: 4s;
+ -webkit-animation-duration: 1s;
  -webkit-animation-iteration-count: 10;
+ -webkit-animation-timing-function: ease;
  /*-webkit-animation-direction: alternate;*/
  border-radius: 10px;
   
@@ -146,6 +158,9 @@ $(function(){
         //$('.selected').removeClass("selected")
       }
   })
+  
+  
+  /*
   var lastSheet = document.styleSheets[document.styleSheets.length - 1]
   lastSheet.insertRule("@-webkit-keyframes test2 { 0% { top: 0px; } 50.556% {left: 100px;} 100% {top: 100px;} }", lastSheet.cssRules.length);
  //$('#test')[0].style.webkitAnimationName = 'test2'
@@ -154,6 +169,7 @@ $(function(){
       '-webkit-animation-duration' : '0.5s',
       '-webkit-animation-iteration-count' : '10'
   })
+  */
   
 
     
@@ -284,6 +300,28 @@ $(function(){
   var move_count = 0;
   var needle_interval;
   objects = {}
+  
+  var relevant_css = [
+    'top',
+    'left',
+    'width',
+    'height',
+    'opacity',
+    'background-color',
+    '-webkit-transform',
+    'border-radius',
+    'background-image',
+    //'rotation-point',
+    '-webkit-transform',
+    '-webkit-transform-origin',
+    
+  ]
+  
+  for (var i in relevant_css) {
+      var attr = relevant_css[i]
+      $('#css_controls').append('<input type="text" placeholder="'+attr+'" data-css="'+attr+'">')
+  }
+  
    
   $(document).keydown(function(e){
       if (e.keyCode == 8) {
@@ -453,28 +491,43 @@ $(function(){
    
    
   function get_relevant_css(obj) {
-      return {
-        'top' : $(obj).css('top'),
-        'left' : $(obj).css('left'),
-        'width' : $(obj).css("width"),
-        'height' : $(obj).css("height"),
+      var ret = {}
+      
+      for (var i in relevant_css) {
+          var attr = relevant_css[i]
+          ret[attr] = $(obj).css(attr)
       }
+      return ret
+      //return {
+      //  'top' : $(obj).css('top'),
+      //  'left' : $(obj).css('left'),
+      //  'width' : $(obj).css("width"),
+      //  'height' : $(obj).css("height"),
+      //}
   }
+  
+  
+    function save_state(obj) {
+          var id = $(obj).attr('id')
+          //switching from current time to go based off selected move
+          //objects[id][audio.currentTime] = get_relevant_css(obj)
+          
+          var selected_move = $('.move-selected')
+          if (selected_move.length == 0) {
+            return;
+          }
+          var selected_move_id = selected_move.attr('id')
+          var selected_move_on = selected_move.attr('data-on') == "end" ? "e" : "s"
+          objects[id][selected_move_id + "#" + selected_move_on] = get_relevant_css(obj)
+          
+    }
    
    $('#add_object').click(function(e){
       var id = 'obj_'+object_count
       $('#stage').append('<div id="'+id+'" class="object">har</div>');
       objects[id] = {}
       
-      function save_state(obj) {
-          //switching from current time to go based off selected move
-          //objects[id][audio.currentTime] = get_relevant_css(obj)
-          var selected_move = $('.move-selected')
-          var selected_move_id = selected_move.attr('id')
-          var selected_move_on = selected_move.attr('data-on') == "end" ? "e" : "s"
-          objects[id][selected_move_id + "#" + selected_move_on] = get_relevant_css(obj)
-          
-      }
+
       draggable('#' + id, save_state)
       
       resizable('#' + id, save_state)
@@ -562,6 +615,7 @@ $(function(){
             css.push("  -webkit-animation-name: kf_"+i+";")
             css.push("-webkit-animation-duration: " + audio.duration + "s;") 
             css.push("-webkit-animation-iteration-count: 1;")
+            css.push("-webkit-animation-timing-function: linear;")
           css.push("}") 
           
       }
@@ -584,7 +638,7 @@ $(function(){
         audio.play()
         $(document.body).append(style)
      
-     })
+     }, 500)
      
      
      //setTimeout(function(){
@@ -608,6 +662,8 @@ $(function(){
    
    $('#stop_performance').click(function(){
       $('.perform_style').remove()
+      audio.pause()
+      audio.currentTime = 0;
       return false;
    })
    
@@ -637,6 +693,10 @@ $(function(){
   <div id="stage">
   <div id="test">yo</div>
   </div>
+
+<div id="css_controls">
+
+</div>
 
 <audio  id="main-song" controls=true src="caribe.mp3"></audio>
 
