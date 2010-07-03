@@ -99,6 +99,38 @@ position: relative;
 
 
 
+/*
+@-webkit-keyframes kf_obj_0 {
+  from {
+  
+  }
+  4.169390866270236% {
+    top: 47px;
+    left: 24px;
+    width: 78px;
+    height: 106px;
+  }
+  8.923053301645794% {
+    top: 40px;
+    left: 575px;
+    width: 78px;
+    height: 106px;
+  }
+  
+  to {
+  
+  }
+  
+}
+#obj_0 {
+  background-color: green !important;
+  -webkit-animation-name: kf_obj_0;
+-webkit-animation-duration: 30.040815353393555s;
+-webkit-animation-iteration-count: 1;
+}
+*/
+
+
 
 </style>
 <script src="jquery.js"></script>
@@ -335,6 +367,7 @@ $(function(){
       //var audio = $("<audio id='main-song'></audio>")
       $(audio).bind('canplaythrough', function(){
           this.play()
+          this.volume = 0.25
       }).bind('play', function(){
           playing = true;
           
@@ -450,6 +483,15 @@ $(function(){
       return false;
    })
    
+   $('#stage').dblclick(function(e){
+      e.preventDefault()
+      if ($(e.target).is('.object')) {
+          $(e.target).text(prompt("text"))
+      }
+      
+   })
+   
+   
    function redraw_tracks(width, selected_id) {
       move_count = 0;
       $('.track').remove();
@@ -487,12 +529,16 @@ $(function(){
       
    })
    
-   $('#generate_css').click(function(e){
-      e.preventDefault()
+   function generate_css(e){
+      e && e.preventDefault()
       var css = []
       for (var i in objects) {
           css.push("@-webkit-keyframes kf_" + i + ' {');
           var moves_list = objects[i]
+          
+          //from
+          css.push("  0% {}")
+          
           for (var move in moves_list) {
               var move_id = _s(move,0,-2)
               var data_on = _s(move,-1) == "e" ? "end" : "start"
@@ -508,6 +554,8 @@ $(function(){
               }
               css.push("  }")
           }
+          css.push("  100% {}")
+          
           css.push('}')
           
           css.push("#" + i + " {")
@@ -520,6 +568,47 @@ $(function(){
       generated_css = css.join('\n');
       console.log(generated_css)
       
+   }
+   
+   $('#generate_css').click(generate_css)
+   
+   
+   $('#perform').click(function(){
+      
+      $('.perform_style').remove()
+      generate_css();
+     var style = $("<st"+"yle class='perform_style'>" + generated_css + "<"+"/s"+"tyle>")
+     audio.currentTime = 0;
+     
+     setTimeout(function(){
+        audio.play()
+        $(document.body).append(style)
+     
+     })
+     
+     
+     //setTimeout(function(){
+     //   audio.pause(); 
+     //   audio.currentTime = 0
+        //function onplay(e){
+        //  $(document.body).append(style)
+        //  $(this).unbind('play', onplay)
+        //}
+        //$(audio).bind('play', onplay)
+     //   audio.play()
+        
+     //}, 200)
+     
+     
+     
+     
+     
+     
+   })
+   
+   $('#stop_performance').click(function(){
+      $('.perform_style').remove()
+      return false;
    })
    
    $('#add_track').click()
@@ -544,12 +633,12 @@ $(function(){
 <body>
 <a href="#" id="add_object">Add object</a>
 <a href="#" id="perform">Perform!</a>
-
+<a href="#" id="stop_performance">Stop</a>
   <div id="stage">
   <div id="test">yo</div>
   </div>
 
-<audio  id="main-song" controls=true src="estuche.mp3"></audio>
+<audio  id="main-song" controls=true src="caribe.mp3"></audio>
 
 
 <div id="time"></div>
