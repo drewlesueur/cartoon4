@@ -319,6 +319,10 @@ $(function(){
     //'rotation-point',
     '-webkit-transform',
     '-webkit-transform-origin',
+    'color',
+    'text-size',
+    'font-weight'
+    
     
   ]
   
@@ -504,18 +508,14 @@ $(function(){
    
   function get_relevant_css(obj) {
       var ret = {}
-      
+      //todo only save the css that is changed or has an actual value;
       for (var i in relevant_css) {
           var attr = relevant_css[i]
           ret[attr] = $(obj).css(attr)
       }
       return ret
-      //return {
-      //  'top' : $(obj).css('top'),
-      //  'left' : $(obj).css('left'),
-      //  'width' : $(obj).css("width"),
-      //  'height' : $(obj).css("height"),
-      //}
+      
+      
   }
   
   
@@ -631,7 +631,9 @@ $(function(){
           var moves_list = objects[i]
           
           //from
-          css.push("  0% {}")
+          //css.push("  0% {}")
+          var lowest = 100;
+          var highest = 0;
           
           for (var move in moves_list) {
               var move_id = _s(move,0,-2)
@@ -640,7 +642,21 @@ $(function(){
               console.log(data_on)
               var time = $('#' + move_id).attr('data-' + data_on);
               
-              var percent = (time / audio.duration * 100) + "%"
+              var percent = (time / audio.duration * 100)
+              
+              if (percent < lowest) {
+                 lowest = percent
+                 lowest_rules = moves_list[move];
+              }
+              
+              if (percent > highest) {
+                 highest = percent
+                 highest_rules = moves_list[move];
+              }
+              
+              percent = percent + "%"
+              percent = percent + "%"
+              
               css.push("  " + percent + " {")
               css_rules = moves_list[move];
               for (var css_rule in css_rules) {
@@ -648,7 +664,20 @@ $(function(){
               }
               css.push("  }")
           }
-          css.push("  100% {}")
+          
+          
+          css.push("  0% {")
+              for (var css_rule in lowest_rules) {
+                css.push("    " + css_rule + ": " + lowest_rules[css_rule] + ";");
+              }
+          css.push("  }");
+          
+          css.push("  100% {")
+              for (var css_rule in highest_rules) {
+                css.push("    " + css_rule + ": " + highest_rules[css_rule] + ";");
+              }
+          css.push("  }");
+         
           
           css.push('}')
           
