@@ -60,6 +60,10 @@ position: relative;
   margin: -1px;
 }
 
+.move-used {
+  -webkit-box-shadow: rgba(0, 0, 0, 1) 0px 0px 10px;
+}
+
 .object-selected {
   -webkit-box-shadow: rgba(0, 0, 0, 1) 0px 0px 10px;
 }
@@ -570,7 +574,13 @@ $(function(){
             var attr = relevant_css[i]
             var css_val = $(e.target).css(attr)
             $("[data-css='"+attr+"']").val(css_val)
-            
+         }
+         
+         $('.move-used').removeClass('move-used')
+         var obj_moves = objects[e.target.id];
+         for (var move_id in obj_moves) {
+            move_id = _s(move_id, 0, -2); //taking off the #s
+            $('#' + move_id).addClass('move-used')
          }
       } 
    })
