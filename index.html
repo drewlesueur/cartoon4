@@ -33,7 +33,7 @@ position: relative;
    //resize: both;
    overflow: auto;
   
-   background-color: red;
+  
    position: absolute;
 }
 
@@ -99,6 +99,8 @@ position: relative;
    display: none;
  }
 }
+
+
 
 
 
@@ -309,7 +311,10 @@ $(function(){
   var move_count = 0;
   var needle_interval;
   objects = {}
-  
+  perform_simple = false;
+  perform_simple_index = 0;
+  perform_simple_info = []
+  perform_simple_times = []
   var relevant_css = [
     'top',
     'left',
@@ -324,8 +329,10 @@ $(function(){
     '-webkit-transform',
     '-webkit-transform-origin',
     'color',
-    'text-size',
-    'font-weight'
+    'font-size',
+    'font-weight',
+    'font-family',
+    
     
     
   ]
@@ -418,6 +425,21 @@ $(function(){
      var pos = currentTime / duration * width
      $('#needle').css("left", pos + "px")
      $('#time').text(audio.currentTime)
+     
+     
+     if (perform_simple == true) {
+				while (audio.currentTime >= perform_simple_times[perform_simple_index]) {
+						var todos = perform_simple_info[perform_simple_index]
+						for (var i in todos) {
+								var todo = todos[i]
+								$('#' + todo.obj).css(todo.css)
+						}
+						perform_simple_index++
+				}
+		 }
+				
+			
+     
      
   }
   
@@ -543,7 +565,7 @@ $(function(){
    function add_object(e){
       e && e.preventDefault()
       var id = 'obj_'+object_count
-      $('#stage').append('<div id="'+id+'" class="object">har</div>');
+      $('#stage').append('<div id="'+id+'" class="object"><div class="inner">har</div></div>');
       
       if (!(id in objects)) objects[id] = {};
       
@@ -553,6 +575,7 @@ $(function(){
       resizable('#' + id, save_state)
       
       object_count++
+      return $('#' + id);
    }
    
    
@@ -561,23 +584,38 @@ $(function(){
    
    $('#stage').dblclick(function(e){
       e.preventDefault()
+      
       if ($(e.target).is('.object')) {
-          $(e.target).text(prompt("text"))
+          $(e.target).find(".inner").remove()
+          $(e.target).append("<div class='inner'>" + prompt("text") + "</div>")
+      } else if ($(e.target).is('.object div')) {
+          var obj = $(e.target).parents('.object')
+          $(obj).find(":not(.resizer)").remove()
+          $(obj).append("<div class='inner'>" + prompt("text") + "</div>")
       }
    })
    
    $('#stage').click(function(e){
       $('.object-selected').removeClass('object-selected')
       if ($(e.target).is(".object") || $(e.target).is(".object div")) {
-         $(e.target).addClass("object-selected")
+         
+         var obj;
+         if ($(e.target).is(".object")) {
+           $(e.target).addClass("object-selected");
+           obj = e.target
+         } else {
+            obj = $(e.target).parents('.object')[0]
+            $(obj).addClass("object-selected");
+         }
+         
          for (var i in relevant_css) {
             var attr = relevant_css[i]
-            var css_val = $(e.target).css(attr)
+            var css_val = $(obj).css(attr)
             $("[data-css='"+attr+"']").val(css_val)
          }
          
          $('.move-used').removeClass('move-used')
-         var obj_moves = objects[e.target.id];
+         var obj_moves = objects[obj.id];
          for (var move_id in obj_moves) {
             move_id = _s(move_id, 0, -2); //taking off the #s
             $('#' + move_id).addClass('move-used')
@@ -603,6 +641,9 @@ $(function(){
           $('#' + selected_id).addClass('selected')
       }
       
+      current_track = i
+      $('#' + i).addClass('selected')
+      
    }
    
    $('#rate').click(function(){
@@ -611,7 +652,12 @@ $(function(){
    
    $('#save').click(function(e){
       e.preventDefault();
-      $('#saved').val(({moves: moves, objects: objects}))
+      
+      var inners = {}
+      for (var i in objects) {
+         inners[i] = $('#' + i).find('.inner').html()
+      }
+      $('#saved').val(JSON.stringify({moves: moves, objects: objects, inners: inners}))
    })
    
    $('#load').click(function(e){
@@ -629,6 +675,12 @@ $(function(){
       }
       redraw_tracks()
       last_key = ""
+      
+      inners = saved.inners
+      
+      for (var i in inners) {
+					$('#' + i).find('.inner').html(inners[i]) 
+      }
       
       
    })
@@ -708,7 +760,7 @@ $(function(){
    
    
    $('#perform').click(function(){
-      
+      $('#stop').click()
       $('.perform_style').remove()
       generate_css();
      var style = $("<st"+"yle class='perform_style'>" + generated_css + "<"+"/s"+"tyle>")
@@ -744,8 +796,101 @@ $(function(){
       $('.perform_style').remove()
       audio.pause()
       audio.currentTime = 0;
+      perform_simple = false;
+      perform_simple_index = false;
+      perform_simple_info = []
+      perform_simple_times = []
       return false;
    })
+   
+   $('#perform_simple').click(function(){
+			$('#stop').click()
+			audio.currentTime = 0;
+			setTimeout(function(){audio.play()}, 1000);
+			var time_objs = {}
+			//this might be faster if you kept track of which object that move deals with
+			$('.move').each(function(){
+					var time_start = $(this).attr('data-start')
+					var time_end = $(this).attr('data-end')
+					var move_id = this.id
+					
+					time_objs[time_start] = []
+					time_objs[time_end] = [];
+					
+					for (var obj_id in objects) {
+							var my_moves = objects[obj_id];
+							if (my_moves[move_id + "#s"]) {
+									time_objs[time_start].push({obj: obj_id, css: my_moves[move_id + "#s"]})
+							}
+							if (my_moves[move_id + "#e"]) {
+									time_objs[time_end].push({obj: obj_id, css: my_moves[move_id + "#e"]})
+							}
+					}
+					
+					
+			})
+			
+			perform_simple_info = []
+			perform_simple_times = []
+			
+			//todo: might not work in future versions. the sortobject dealio. maybe bcom
+			time_objs = sortObject(time_objs);
+			console.log(time_objs)
+			for (var time in time_objs) {
+					perform_simple_times.push(time - 0)
+					perform_simple_info.push(time_objs[time])
+			}
+			perform_simple_index = 0;
+			perform_simple = true;
+   })
+   
+   $('#unbind_move').click(function(){
+      var obj = $('.object-selected')[0]
+      
+      var obj_moves = objects[obj.id]
+      var move = $('.move-selected')[0]
+      var suffix = $(move).attr('data-on') == "start" ? "#s" : "#e"
+      delete obj_moves[move.id + suffix]
+   })
+   
+   
+   $('#clone_object').click(function(e) {
+      var obj = $('.object-selected')[0];
+      var css = get_relevant_css(obj);
+      var obj = add_object();
+      console.log(obj)
+      $(obj).css(css)
+      return false;
+   })
+   
+   $('#delete_object').click(function(e) {
+      var obj = $('.object-selected')[0];
+      delete objects[obj.id]
+      $(obj).remove()
+      return false;
+   })
+   
+   
+   
+   
+   function sortObject(o) {
+    var sorted = {},
+    key, a = [];
+
+    for (key in o) {
+        if (o.hasOwnProperty(key)) {
+                a.push(key);
+        }
+    }
+
+    a.sort();
+
+    for (key = 0; key < a.length; key++) {
+        sorted[a[key]] = o[a[key]];
+    }
+    return sorted;
+	 }
+
    
    $('#add_track').click()
   /*
@@ -769,16 +914,22 @@ $(function(){
 <body>
 <a href="#" id="add_object">Add object</a>
 <a href="#" id="perform">Perform!</a>
+<a href="#" id="perform_simple">Perform! simple</a>
 <a href="#" id="stop_performance">Stop</a>
+<a href="#" id="unbind_move">Unbind Move</a>
+<a href="#" id="clone_object">Clone object</a>
+<a href="#" id="delete_object">delete object</a>
+
+
   <div id="stage">
-  <div id="test">yo</div>
+  <!--<div id="test">yo</div>-->
   </div>
 
 <div id="css_controls">
 
 </div>
 
-<audio  id="main-song" controls=true src="caribe.mp3"></audio>
+<audio  id="main-song" controls=true src="estuche.mp3"></audio>
 
 
 <div id="time"></div>
