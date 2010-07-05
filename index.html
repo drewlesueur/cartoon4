@@ -45,7 +45,7 @@ position: relative;
 }
 
 #tracks {
-  height: 200px;
+  height: 70px;
   overflow: scroll;
 }
 
@@ -416,6 +416,7 @@ $(function(){
   }
   
   
+
   function setPlayHead(){
      
      var duration = audio.duration
@@ -430,15 +431,18 @@ $(function(){
      if (perform_simple == true) {
 				while (audio.currentTime >= perform_simple_times[perform_simple_index]) {
 						var todos = perform_simple_info[perform_simple_index]
+						
+						
 						for (var i in todos) {
 								var todo = todos[i]
 								$('#' + todo.obj).css(todo.css)
 						}
+						
+						custom && custom(audio.currentTime, perform_simple_times[perform_simple_index], perform_simple_index)
+						
 						perform_simple_index++
 				}
 		 }
-				
-			
      
      
   }
@@ -657,7 +661,7 @@ $(function(){
       for (var i in objects) {
          inners[i] = $('#' + i).find('.inner').html()
       }
-      $('#saved').val(JSON.stringify({moves: moves, objects: objects, inners: inners}))
+      $('#saved').val(JSON.stringify({moves: moves, objects: objects, inners: inners, "custom": $('#custom').val()}))
    })
    
    $('#load').click(function(e){
@@ -682,7 +686,15 @@ $(function(){
 					$('#' + i).find('.inner').html(inners[i]) 
       }
       
+      $('#custom').val(saved.custom)
       
+      $('#use_custom').click()
+   })
+   
+   
+   $('#use_custom').click(function(e){
+			e.preventDefault()
+			eval($('#custom').val())
    })
    
    function generate_css(e){
@@ -700,8 +712,8 @@ $(function(){
           for (var move in moves_list) {
               var move_id = _s(move,0,-2)
               var data_on = _s(move,-1) == "e" ? "end" : "start"
-              console.log(move_id)
-              console.log(data_on)
+              
+              
               var time = $('#' + move_id).attr('data-' + data_on);
               
               var percent = (time / audio.duration * 100)
@@ -834,12 +846,12 @@ $(function(){
 			perform_simple_times = []
 			
 			//todo: might not work in future versions. the sortobject dealio. maybe bcom
-			time_objs = sortObject(time_objs);
-			console.log(time_objs)
-			for (var time in time_objs) {
-					perform_simple_times.push(time - 0)
-					perform_simple_info.push(time_objs[time])
-			}
+			time_objs = sortObject_number(time_objs);
+			
+			
+					perform_simple_times = time_objs[0]
+					perform_simple_info = time_objs[1]
+			
 			perform_simple_index = 0;
 			perform_simple = true;
    })
@@ -858,7 +870,7 @@ $(function(){
       var obj = $('.object-selected')[0];
       var css = get_relevant_css(obj);
       var obj = add_object();
-      console.log(obj)
+      
       $(obj).css(css)
       return false;
    })
@@ -870,25 +882,35 @@ $(function(){
       return false;
    })
    
+   /*
+   $('#delete_move').click(function(e) {
+      var obj = $('.move-selected')[0];
+      delete moves[obj.id]
+      $(obj).remove()
+      return false;
+   })*/
    
    
    
-   function sortObject(o) {
+   
+   function sortObject_number(o) {
     var sorted = {},
     key, a = [];
 
     for (key in o) {
         if (o.hasOwnProperty(key)) {
-                a.push(key);
+                a.push(key - 0);
         }
     }
 
-    a.sort();
-
-    for (key = 0; key < a.length; key++) {
-        sorted[a[key]] = o[a[key]];
-    }
-    return sorted;
+    a.sort(function(a,b){return a-b});
+    
+    b = []
+    
+    b.push(o[a[key]])
+    
+    return [a,b]
+    
 	 }
 
    
@@ -905,6 +927,12 @@ $(function(){
   }
   img.src = "test.svg"
   */
+  
+  
+  
+  
+
+
   
   
 })
@@ -929,7 +957,7 @@ $(function(){
 
 </div>
 
-<audio  id="main-song" controls=true src="estuche.mp3"></audio>
+<audio  id="main-song" controls=true src="caribe.mp3"></audio>
 
 
 <div id="time"></div>
@@ -947,7 +975,14 @@ Zoom<input type="text" id="zoom" /><br>
 <a href="#" id="save">save</a> <br>
 <textarea id="saved"></textarea><br>
 <a href="#" id="load">load</a> <br>
-<a href="#" id="generate_css">Generate CSS</a>
+<br />
+
+<a href="#" id="use_custom">use custom callback</a><br>
+<textarea rows = "20" cols="100" id="custom">custom = function (real_time, time, index) {
+
+}</textarea>
+
+
 
 </body>
 
