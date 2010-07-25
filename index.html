@@ -429,16 +429,19 @@ $(function(){
      
      
      if (perform_simple == true) {
+        
 				while (audio.currentTime >= perform_simple_times[perform_simple_index]) {
-						var todos = perform_simple_info[perform_simple_index]
 						
+						var todos = perform_simple_info[perform_simple_index]
+            
 						
 						for (var i in todos) {
 								var todo = todos[i]
 								$('#' + todo.obj).css(todo.css)
 						}
 						
-						custom && custom(audio.currentTime, perform_simple_times[perform_simple_index], perform_simple_index)
+						
+						//custom && custom(audio.currentTime, perform_simple_times[perform_simple_index], perform_simple_index)
 						
 						perform_simple_index++
 				}
@@ -845,12 +848,14 @@ $(function(){
 			perform_simple_info = []
 			perform_simple_times = []
 			
+			
 			//todo: might not work in future versions. the sortobject dealio. maybe bcom
 			time_objs = sortObject_number(time_objs);
 			
-			
 					perform_simple_times = time_objs[0]
 					perform_simple_info = time_objs[1]
+			
+			
 			
 			perform_simple_index = 0;
 			perform_simple = true;
@@ -907,7 +912,9 @@ $(function(){
     
     b = []
     
-    b.push(o[a[key]])
+    for (var key in a) {
+        b.push(o[a[key]])
+    }
     
     return [a,b]
     
@@ -957,7 +964,7 @@ $(function(){
 
 </div>
 
-<audio  id="main-song" controls=true src="caribe.mp3"></audio>
+<audio  id="main-song" controls=true src="alma_25.mp3"></audio>
 
 
 <div id="time"></div>
