@@ -316,6 +316,13 @@ $(function(){
   perform_simple_index = 0;
   perform_simple_info = []
   perform_simple_times = []
+  
+  perform_custom = false;
+  perform_custom_index = 0;
+  perform_custom_info = []
+  perform_custom_times = []
+  
+  
   var relevant_css = [
     'top',
     'left',
@@ -441,11 +448,14 @@ $(function(){
 								$('#' + todo.obj).css(todo.css)
 						}
 						
-						
 						//custom && custom(audio.currentTime, perform_simple_times[perform_simple_index], perform_simple_index)
 						
 						perform_simple_index++
 				}
+		 }
+		 
+		 if (perform_custom == true) {
+      
 		 }
      
      
@@ -684,7 +694,7 @@ $(function(){
       for (var i in objects) {
          inners[i] = $('#' + i).find('.inner').html()
       }
-      $('#saved').val(JSON.stringify({moves: moves, objects: objects, inners: inners, "custom": $('#custom').val()}))
+      $('#saved').val(JSON.stringify({moves: moves, moves_meta: moves_meta, objects: objects, inners: inners, "custom": $('#custom').val()}))
    })
    
    $('#load').click(function(e){
@@ -694,7 +704,7 @@ $(function(){
       
       moves = saved.moves
       objects = saved.objects
-      
+      moves_meta = saved.moves_meta
       object_count = 0;
       for (var obj in objects) {
           //todo: this depends on iterating thru objects in order .chrome??
@@ -969,6 +979,7 @@ $(function(){
 <a href="#" id="add_object">Add object</a>
 <a href="#" id="perform">Perform!</a>
 <a href="#" id="perform_simple">Perform! simple</a>
+<a href="#" id="perform_custom" style="font-weight: bold;">Perform! custom</a>
 <a href="#" id="stop_performance">Stop</a>
 <a href="#" id="unbind_move">Unbind Move</a>
 <a href="#" id="clone_object">Clone object</a>
