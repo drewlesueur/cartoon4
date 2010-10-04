@@ -392,7 +392,7 @@ $(function(){
       
   }).keyup(function(e){
       
-      if ($(e.target).is("input")) return;
+      //if ($(e.target).is("input")) return;
       if (playing == false) return;
       
       
@@ -400,18 +400,21 @@ $(function(){
       
       if (e.keyCode == 32) {
         moves[current_track].push(audio.currentTime)
+        used_track = current_track
       } else {
         specified_track = String.fromCharCode(e.keyCode).toLowerCase()
         moves[specified_track].push(audio.currentTime)
+        used_track = specified_track
       }
       
       
       
-      var these_moves = moves[current_track]
+      
+      var these_moves = moves[used_track]
       var last_move_time = _s(these_moves, -1)[0]
       var second_last_move_time = _s(these_moves, -2,1)[0]
       //var track = $('#' + current_track)
-      put_move(last_move_time, second_last_move_time , specified_track, these_moves.length - 1)
+      put_move(last_move_time, second_last_move_time , used_track, these_moves.length - 1)
       
       
   })
