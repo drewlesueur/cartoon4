@@ -392,7 +392,7 @@ $(function(){
       if ($(e.target).is("input")) return;
       if (playing == false) return;
       
-      console.log(playing)
+      
       last_key = "";
       moves[current_track].push(audio.currentTime)
       
@@ -491,13 +491,13 @@ $(function(){
           if ($(e.target).is(".move")) {
              
              if (e.ctrlKey) {
-               console.log("yay ctrl")
+               
                var meta = prompt("info?")
                $(e.target).find(".meta").text(meta)
                var current_move = $(e.target).attr("id")
                current_move = _s(current_move, "move_".length)
                current_move = current_move * 2
-               console.log(current_move)
+               
                moves_meta[current_track][current_move] = meta
                
                return
@@ -679,7 +679,7 @@ $(function(){
    
    
    function redraw_tracks(width, selected_id) {
-      console.log(moves)
+      
       move_count = 0;
       $('.track').remove();
       
@@ -949,8 +949,6 @@ $(function(){
 			perform_custom_times = keys_vals[0];
 			perform_custom_info = keys_vals[1];
 			
-			console.log(perform_custom_times)
-			console.log(perform_custom_info)
 			
 			perform_custom_index = 0;
 			perform_custom = true;
@@ -1074,7 +1072,7 @@ $(function(){
 
 </div>
 
-<audio  id="main-song" controls=true src="estuche.mp3"></audio>
+<audio  id="main-song" controls=true src="audio/first.m4a"></audio>
 
 
 <div id="time"></div>
