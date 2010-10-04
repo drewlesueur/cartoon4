@@ -6,19 +6,26 @@
     $("#stage").append '<img id="toon2" style="position: absolute" src="toon2.bmp">'
     img = $("#toon")
     img2 = $("#toon2") 
+    img = $("#toon2").css 'display', "none"
+    
     console.log img
     
   else
     if track is "main"
+      
       if onstart
         img = $("#toon").css 'display', "none"
         img = $("#toon2").css 'display', ""
       else
+        console.log "off"
+        console.log index
+        if index is 26
+          console.log "last"
         img = $("#toon2").css 'display', "none"
         img = $("#toon").css 'display', ""
-    esle if track is "movement"
+    else if track is "movement"
       if onstart
-        $("#toon, #toon2").css "-webkit-transform",  "rotate(3)"
+        $("#toon, #toon2").css "-webkit-transform",  "scale(3)"
       else  
         $("#toon, #toon2").css "-webkit-transform",  ""
         

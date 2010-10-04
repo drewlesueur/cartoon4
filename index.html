@@ -449,10 +449,7 @@ $(function(){
 		 if (perform_custom == true) {
         while (audio.currentTime >= perform_custom_times[perform_custom_index]) {
 						var meta = perform_custom_info[perform_custom_index]
-						
-						//console.log(meta)
-						//track, realtime, time, meta, onstart
-						custom && custom(false, meta[1], audio.currentTime, perform_custom_times[perform_custom_index], meta[0], perform_custom_index % 2 == 0, perform_custom_index )
+						custom(false, meta[1], audio.currentTime, perform_custom_times[perform_custom_index], meta[0], meta[2], perform_custom_index )
 						perform_custom_index++
 				}
 		 }
@@ -918,7 +915,7 @@ $(function(){
         for (var j = 0; j < track.length; j++) {
           var move = track[j]
           var move_meta = track_meta && track_meta[j] || null
-          time_obj[move] = [move_meta, i, ]
+          time_obj[move] = [move_meta, i, j  % 2 == 0] //need to store if its even or odd
           
           //perform_custom_times.push(move)
           //perform_custom_info.push([move_meta,i])
