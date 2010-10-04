@@ -383,11 +383,15 @@ $(function(){
           
           move.remove();
           
-          delete moves[the_track][the_id]
-          delete moves[the_track][the_id + 1]
+          moves[the_track].splice(the_id, 2)
           
-          delete moves_meta[the_track][the_id]
-          delete moves_meta[the_track][the_id + 1]
+          
+          
+          if (moves_meta[the_track] && moves_meta[the_track][the_id]) {
+            moves_meta[the_track].splice(the_id, 2)
+          }
+          
+        
           return false
           
       }
@@ -982,8 +986,8 @@ $(function(){
     }
   
   })
-  $('#perform_custom').click(function(){
-			$('#stop').click()
+  $('#perform_custom').click(function(){ //perfco
+			
 			
 			$("body").append('<div id="backdrop"><\/div>') 
 			$("#backdrop").click(function(){
@@ -1027,7 +1031,7 @@ $(function(){
 			
 			initialize()
 			
-			audio.currentTime = 0;
+			//audio.currentTime = 0;
 			setTimeout(function(){audio.play()}, 1000);
    })
    
