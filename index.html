@@ -447,10 +447,11 @@ $(function(){
 		 }
 		 if (perform_custom == true) {
         while (audio.currentTime >= perform_custom_times[perform_custom_index]) {
-						var meta = perform_simple_info[perform_custom_index]
+						var meta = perform_custom_info[perform_custom_index]
 						
 						console.log(meta)
-						custom && custom(audio.currentTime, perform_custom_times[perform_custom_index], meta[0], meta[1])
+						//track, realtime, time, meta, onstart
+						//custom && custom(meta[1], audio.currentTime, perform_custom_times[perform_custom_index], meta[0], perform_custom_index % 2 == 0, perform_custom_index )
 						perform_custom_index++
 				}
 		 }
@@ -538,9 +539,11 @@ $(function(){
       $('#add_track').click(function(e){
           
           track_count++;
-          var id = track_count;
+          var id = prompt("track name");
+          
+          //var id = track_count;
           //var id = (new Date()).getTime()
-          $('#tracks').append('<div class="track" id="'+id+'">')
+          $('#tracks').append('<div class="track" id="'+id+'"><div style="position: absolute;">' + id + "<\/div><\/div>")
           current_track = id;
           moves[id] = []
           moves_meta[id] = []
@@ -666,7 +669,7 @@ $(function(){
       $('.track').remove();
       
       for (var i in moves) {
-          var track = $('<div class="track" style="width: '+width+'px;" id="'+i+'">')
+          var track = $('<div class="track" style="width: '+width+'px;" id="'+i+'">' + '<div style="position: absolute;">' + i + "<\/div><\/div>")
           var these_moves = moves[i]
           $('#tracks').append(track);
           for (var move_index = 0; move_index < these_moves.length; move_index+=2) {
@@ -920,8 +923,9 @@ $(function(){
 			
 			perform_custom_index = 0;
 			perform_custom = true;
-			
-			window.custom = eval("function(track, realtime, time, meta, onstart)")
+			var raw = " custom = function(track, realtime, time, meta, onstart, index) { \n" +  $('#custom').val() +  " \n }"
+			console.log(raw)
+			eval(raw)
 			
 			audio.currentTime = 0;
 			setTimeout(function(){audio.play()}, 1000);
@@ -1054,7 +1058,7 @@ Zoom<input type="text" id="zoom" /><br>
 <br />
 
 
-<textarea rows = "20" cols="100" id="custom">//use track, time, meta, start ...and handle what you want</textarea>
+<textarea rows = "20" cols="100" id="custom">//track, realtime, time, meta, onstart, index  ...and handle what you want</textarea>
 
 
 
