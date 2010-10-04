@@ -425,7 +425,7 @@ $(function(){
   
   
 
-  function setPlayHead(){
+  function setPlayHead() {
      
      var duration = audio.duration
      var currentTime = audio.currentTime
@@ -434,31 +434,26 @@ $(function(){
      var pos = currentTime / duration * width
      $('#needle').css("left", pos + "px")
      $('#time').text(audio.currentTime)
-     
-     
      if (perform_simple == true) {
-        
 				while (audio.currentTime >= perform_simple_times[perform_simple_index]) {
-						
 						var todos = perform_simple_info[perform_simple_index]
-            
-						
 						for (var i in todos) {
 								var todo = todos[i]
 								$('#' + todo.obj).css(todo.css)
 						}
-						
 						//custom && custom(audio.currentTime, perform_simple_times[perform_simple_index], perform_simple_index)
-						
 						perform_simple_index++
 				}
 		 }
-		 
 		 if (perform_custom == true) {
-      
+        while (audio.currentTime >= perform_custom_times[perform_custom_index]) {
+						var meta = perform_simple_info[perform_custom_index]
+						
+						console.log(meta)
+						custom && custom(audio.currentTime, perform_custom_times[perform_custom_index], meta[0], meta[1])
+						perform_custom_index++
+				}
 		 }
-     
-     
   }
   
       
@@ -526,6 +521,11 @@ $(function(){
           
           if (!$(e.target).is(".track")) return;
           
+          
+          if (e.ctrlKey) {
+            var meta = prompt("name?")
+            
+          }
           $('.track').removeClass('selected')
           $(e.target).addClass('selected')
           current_track = $(e.target).attr("id")
@@ -721,14 +721,11 @@ $(function(){
       
       $('#custom').val(saved.custom)
       
-      $('#use_custom').click()
+      
    })
    
    
-   $('#use_custom').click(function(e){
-			e.preventDefault()
-			eval($('#custom').val())
-   })
+   
    
    function generate_css(e){
       e && e.preventDefault()
@@ -845,6 +842,12 @@ $(function(){
       perform_simple_index = false;
       perform_simple_info = []
       perform_simple_times = []
+      
+      perform_custom = false;
+      perform_custom_index = false;
+      perform_custom_info = []
+      perform_custom_times = []
+      
       return false;
    })
    
@@ -889,6 +892,41 @@ $(function(){
 			perform_simple_index = 0;
 			perform_simple = true;
    })
+   
+   
+   
+   
+  $('#perform_custom').click(function(){
+			$('#stop').click()
+			
+			perform_custom_info = []
+			perform_custom_times = []
+			
+			for (var i in moves) {
+        var track = moves[i];
+        var track_meta = moves_meta[i]
+        for (var j = 0; j < track.length; j++) {
+          var move = track[j]
+          var move_meta = track_meta[j] || null
+          
+          perform_custom_times.push(move)
+          perform_custom_info.push([move_meta,i])
+          
+        }
+			}
+			
+			console.log(perform_custom_times)
+			console.log(perform_custom_info)
+			
+			perform_custom_index = 0;
+			perform_custom = true;
+			
+			window.custom = eval("function(track, realtime, time, meta, onstart)")
+			
+			audio.currentTime = 0;
+			setTimeout(function(){audio.play()}, 1000);
+   })
+   
    
    $('#unbind_move').click(function(){
       var obj = $('.object-selected')[0]
@@ -984,7 +1022,7 @@ $(function(){
 <a href="#" id="unbind_move">Unbind Move</a>
 <a href="#" id="clone_object">Clone object</a>
 <a href="#" id="delete_object">delete object</a>
-<a href="#" id="delete_object">delete object</a>
+
 
 
   <div id="stage">
@@ -1015,10 +1053,8 @@ Zoom<input type="text" id="zoom" /><br>
 <a href="#" id="load">load</a> <br>
 <br />
 
-<a href="#" id="use_custom">use custom callback</a><br>
-<textarea rows = "20" cols="100" id="custom">custom = function (real_time, time, index) {
 
-}</textarea>
+<textarea rows = "20" cols="100" id="custom">//use track, time, meta, start ...and handle what you want</textarea>
 
 
 
