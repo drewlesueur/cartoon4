@@ -462,7 +462,7 @@ $(function(){
 		 if (perform_custom == true) {
         while (audio.currentTime >= perform_custom_times[perform_custom_index]) {
 						var meta = perform_custom_info[perform_custom_index]
-						custom(false, meta[1], audio.currentTime, perform_custom_times[perform_custom_index], meta[0], meta[2], perform_custom_index )
+						custom(meta[1], audio.currentTime, perform_custom_times[perform_custom_index], meta[0], meta[2], perform_custom_index )
 						perform_custom_index++
 				}
 		 }
@@ -919,7 +919,7 @@ $(function(){
   $('#perform_custom').click(function(){
 			$('#stop').click()
 			
-			$("body").append('<div id="backdrop">hello world<\/div>') 
+			$("body").append('<div id="backdrop"><\/div>') 
 			$("#backdrop").click(function(){
         $('#stop_performance').click();
         
@@ -954,15 +954,15 @@ $(function(){
 			
 			perform_custom_index = 0;
 			perform_custom = true;
-			var raw = "custom = (initialize, track, realtime, time, meta, onstart, index) ->\n" +  $('#custom').val() + "\nreturn custom"
+			var raw = $('#custom').val() + "\nreturn custom: custom, initialize: initialize"
 			
 			raw = CoffeeScript.compile(raw)
-			console.log(raw)
-			custom = eval(raw)
+			raw = eval(raw)
 			
+			custom = raw.custom
+			initialize = raw.initialize
 			
-			
-			custom(true)
+			initialize()
 			
 			audio.currentTime = 0;
 			setTimeout(function(){audio.play()}, 1000);
@@ -1095,7 +1095,13 @@ Zoom<input type="text" id="zoom" /><br>
 <br />
 
 
-<textarea rows = "20" cols="100" id="custom">  #initialize, track, realtime, time, meta, onstart, index  ...and handle what you want</textarea>
+<textarea rows = "20" cols="100" id="custom">
+initialize = () ->
+  #add dom to $("#backgrop")
+custom = (track, realtime, time, meta, onstart, index) ->
+  #manipulate dom based of params
+
+</textarea>
 
 
 
