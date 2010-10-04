@@ -452,7 +452,7 @@ $(function(){
         width = 1;
       }
       
-      var move = $('<div id="move_'+move_count+'" data-id="'+index+'" data-track="'+id+'" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"><div class="meta">'+(meta || "")+'</div></div>')
+      var move = $('<div id="move_'+move_count+'" data-id="'+(index - 1)+'" data-track="'+id+'" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"><div class="meta">'+(meta || "")+'</div></div>')
       track.append(move)
       
       function update_move(obj) {
