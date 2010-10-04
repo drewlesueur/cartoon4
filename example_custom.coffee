@@ -9,10 +9,16 @@
     console.log img
     
   else
-    if onstart
-      console.log img, img2
-      img = $("#toon").css 'display', "none"
-      img = $("#toon2").css 'display', ""
-    else
-      img = $("#toon2").css 'display', "none"
-      img = $("#toon").css 'display', ""
+    if track is "main"
+      if onstart
+        img = $("#toon").css 'display', "none"
+        img = $("#toon2").css 'display', ""
+      else
+        img = $("#toon2").css 'display', "none"
+        img = $("#toon").css 'display', ""
+    esle if track is "movement"
+      if onstart
+        $("#toon, #toon2").css "-webkit-transform",  "rotate(3)"
+      else  
+        $("#toon, #toon2").css "-webkit-transform",  ""
+        

@@ -675,7 +675,7 @@ $(function(){
           $('#tracks').append(track);
           for (var move_index = 0; move_index < these_moves.length; move_index+=2) {
               
-              var meta = moves_meta[i][move_index]
+              var meta = moves_meta[i] && moves_meta[i][move_index]
               put_move(these_moves[move_index+1], these_moves[move_index], i, move_index + 1, meta);
           }
           
@@ -906,18 +906,29 @@ $(function(){
 			perform_custom_info = []
 			perform_custom_times = []
 			
+			
+			
+			//store combine time and other information and then sort by key then extract the needed information
+			
+			
+			time_obj = {}
 			for (var i in moves) {
         var track = moves[i];
         var track_meta = moves_meta[i]
         for (var j = 0; j < track.length; j++) {
           var move = track[j]
-          var move_meta = track_meta[j] || null
+          var move_meta = track_meta && track_meta[j] || null
+          time_obj[move] = [move_meta, i, ]
           
-          perform_custom_times.push(move)
-          perform_custom_info.push([move_meta,i])
-          
+          //perform_custom_times.push(move)
+          //perform_custom_info.push([move_meta,i])
         }
 			}
+			
+			keys_vals = sortObject_number(time_obj)
+			
+			perform_custom_times = keys_vals[0];
+			perform_custom_info = keys_vals[1];
 			
 			console.log(perform_custom_times)
 			console.log(perform_custom_info)
@@ -994,7 +1005,7 @@ $(function(){
         b.push(o[a[key]])
     }
     
-    return [a,b]
+    return [a,b] //returns [array of keys and array of values]
     
 	 }
 
