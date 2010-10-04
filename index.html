@@ -373,16 +373,22 @@ $(function(){
   
    
   $(document).keydown(function(e){
-      if (e.keyCode == 8) {
+      
+      
+      if (e.keyCode == 46) {
           
           var move = $('.move-selected')
           var the_track = move.attr("data-track");
-          var the_id = move.attr("data_id")
+          var the_id = move.attr("data-id")
+          
+          move.remove();
+          
           delete moves[the_track][the_id]
           delete moves[the_track][the_id + 1]
           
           delete moves_meta[the_track][the_id]
           delete moves_meta[the_track][the_id + 1]
+          return false
           
       }
       //if ($(e.target).is("input")) return;
