@@ -385,7 +385,7 @@ $(function(){
       
   })
   
-  function put_move(last_move_time, second_last_move_time, id, index) {
+  function put_move(last_move_time, second_last_move_time, id, index, meta) {
        var track = $('#' + id)
        var duration_width_ratio =   track.width() / audio.duration
       
@@ -397,7 +397,7 @@ $(function(){
         width = 1;
       }
       
-      var move = $('<div id="move_'+move_count+'" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"><div class="meta"></div></div>')
+      var move = $('<div id="move_'+move_count+'" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"><div class="meta">'+(meta || "")+'</div></div>')
       track.append(move)
       
       function update_move(obj) {
@@ -479,6 +479,7 @@ $(function(){
                $(e.target).find(".meta").text(meta)
                var current_move = $(e.target).attr("id")
                current_move = _s(current_move, "move_".length)
+               current_move = current_move * 2
                console.log(current_move)
                moves_meta[current_track][current_move] = meta
                
