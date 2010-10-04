@@ -1,25 +1,32 @@
 img = $('<img src="toon2.bmp">')
 img.attr "src", "toon1.bmp"
 
+
+man = $('<img src="man2.bmp">')
+man.attr "src", "man1.bmp"
+
+
 b = ""
 
-alert "test"
 initialize = () ->
   
   #add dom to $("#backdrop")
   b = $("#backdrop")
+  b.append(man)
   b.append(img)
-  console.log()
+
+ 
   
 custom = (track, realtime, time, meta, onstart, index) ->
   #manipulate dom based of params
-  console.log track, onstart
-  if track is "main" and onstart
+  if track is "l" and onstart
     img.attr "src", "toon2.bmp"  
-  else if track is "main" and not onstart
+  else if track is "l" and not onstart
     img.attr "src", "toon1.bmp"
+  else if track is "a" and onstart
+    man.attr "src", "man2.bmp"  
+  else if track is "a" and not onstart
+    man.attr "src", "man1.bmp"
    
-
-
 
 

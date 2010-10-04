@@ -1,0 +1,34 @@
+Cartunes.
+
+What are Cartunes?
+Cartunes are web-based cartoon music videos that kids can create and share with their freinds.
+
+What's So cool about them?
+They allow kids to be creative on the computer. This is more than just playing a video game. Its creating.
+Kids can also share their creations with others through facebook and other social networks.
+
+Do they have to install anything?
+No The core technology used is HTML5 so it runs inside the browser!
+
+
+How easy is it to create?
+Very easy. They just pick a song, choose a cartoon character. and make them move to the song. They can playback what they did
+and also make changes
+
+
+Wont that get old?
+With plugins, kids and developers can extend what Cartunes can to, making all sorts of new creative ideas
+
+
+Who will benefit?
+Kids will have a lot of fun with this. Advertisers can also advertise using cartunes themselves.
+Musicians will also benefit by using it as another way to distribute their music
+
+
+What about mobile? Mobile is the future.
+There will be a mobile version available as well
+It will target the iPhone/iPad and Android phones, tablets.
+It will leverage the music from the device
+
+
+Wow!

@@ -374,7 +374,16 @@ $(function(){
    
   $(document).keydown(function(e){
       if (e.keyCode == 8) {
-          $('.move-selected')
+          
+          var move = $('.move-selected')
+          var the_track = move.attr("data-track");
+          var the_id = move.attr("data_id")
+          delete moves[the_track][the_id]
+          delete moves[the_track][the_id + 1]
+          
+          delete moves_meta[the_track][the_id]
+          delete moves_meta[the_track][the_id + 1]
+          
       }
       //if ($(e.target).is("input")) return;
       if (playing == false) return;
@@ -443,7 +452,7 @@ $(function(){
         width = 1;
       }
       
-      var move = $('<div id="move_'+move_count+'" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"><div class="meta">'+(meta || "")+'</div></div>')
+      var move = $('<div id="move_'+move_count+'" data-id="'+index+'" data-track="'+id+'" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"><div class="meta">'+(meta || "")+'</div></div>')
       track.append(move)
       
       function update_move(obj) {
@@ -515,15 +524,16 @@ $(function(){
           
           if ($(e.target).is(".move")) {
              
+             
+             
              if (e.ctrlKey) {
                
                var meta = prompt("info?")
                $(e.target).find(".meta").text(meta)
-               var current_move = $(e.target).attr("id")
-               current_move = _s(current_move, "move_".length)
-               current_move = current_move * 2
+               var current_move = $(e.target).attr("data-id")
+               var the_track = $(e.target).attr("data-track")
                
-               moves_meta[current_track][current_move] = meta
+               moves_meta[the_track][current_move] = meta
                
                return
              }
@@ -1131,7 +1141,7 @@ $(function(){
 
 </div>
 
-<audio  id="main-song" controls=true src="audio/first.m4a"></audio>
+<audio  id="main-song" controls=true src="audio/second.m4a"></audio>
 
 
 <div id="time"></div>
@@ -1156,21 +1166,32 @@ Zoom<input type="text" id="zoom" /><br>
 img = $('<img src="toon2.bmp">')
 img.attr "src", "toon1.bmp"
 
+
+man = $('<img src="man2.bmp">')
+man.attr "src", "man1.bmp"
+
+
 b = ""
+
 initialize = () ->
   
   #add dom to $("#backdrop")
   b = $("#backdrop")
+  b.append(man)
   b.append(img)
-  console.log()
+
+ 
   
 custom = (track, realtime, time, meta, onstart, index) ->
   #manipulate dom based of params
-  console.log track, onstart
-  if track is "main" and onstart
+  if track is "l" and onstart
     img.attr "src", "toon2.bmp"  
-  else if track is "main" and not onstart
+  else if track is "l" and not onstart
     img.attr "src", "toon1.bmp"
+  else if track is "a" and onstart
+    man.attr "src", "man2.bmp"  
+  else if track is "a" and not onstart
+    man.attr "src", "man1.bmp"
    
 
 
