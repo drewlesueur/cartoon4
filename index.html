@@ -22,6 +22,16 @@
 }
 
 
+#backdrop {
+  background-color: red;
+  height: 1000px;
+  width: 1680px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  
+}
+
 #stage {
 width: 100%;
 border: 1px solid black;
@@ -458,7 +468,7 @@ $(function(){
       
       //var audio = $("<audio id='main-song'></audio>")
       $(audio).bind('canplaythrough', function(){
-          this.play()
+          //this.play()
           this.volume = 0.25
       }).bind('play', function(){
           playing = true;
@@ -537,7 +547,11 @@ $(function(){
       $('#add_track').click(function(e){
           
           track_count++;
-          var id = prompt("track name");
+          if (track_count == 0) {
+            var id = "main";
+          } else {
+            var id = prompt("track name");
+          }
           
           //var id = track_count;
           //var id = (new Date()).getTime()
@@ -849,6 +863,8 @@ $(function(){
       perform_custom_info = []
       perform_custom_times = []
       
+      $("#backdrop").remove();
+      
       return false;
    })
    
@@ -900,13 +916,15 @@ $(function(){
   $('#perform_custom').click(function(){
 			$('#stop').click()
 			
+			$("body").append('<div id="backdrop">hello world<\/div>') 
+			$("#backdrop").click(function(){
+        $('#stop').click();
+			})
+			
 			perform_custom_info = []
 			perform_custom_times = []
 			
-			
-			
 			//store combine time and other information and then sort by key then extract the needed information
-			
 			
 			time_obj = {}
 			for (var i in moves) {
