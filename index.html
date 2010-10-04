@@ -45,7 +45,7 @@ position: relative;
 }
 
 #tracks {
-  height: 70px;
+  height: 370px;
   overflow: scroll;
 }
 
@@ -162,7 +162,7 @@ position: relative;
 //{"1278100915669":[1.5940380096435547,1.6890380382537842,1.8050379753112793,1.8800380229949951,1.9745570421218872,2.068557024002075,2.2215569019317627,2.347076892852783,2.480077028274536,2.6855969429016113,2.891597032546997,3.007596969604492,3.2041149139404297,3.2671151161193848,3.385114908218384,3.7266340255737305,3.839154005050659,4.1361541748046875,4.263672828674316,4.485672950744629,4.616191864013672,5.031713008880615,5.149713039398193,5.629749774932861,5.9457502365112305,6.3212690353393555,6.497788906097412,6.590788841247559,6.676788806915283,6.879309177398682,7.0073089599609375,7.148828029632568,7.2068281173706055,7.329827785491943,7.532345771789551,8.2363862991333,8.579385757446289,8.664904594421387,8.741905212402344,8.877904891967773,8.95290470123291,9.056425094604492,9.192424774169922,9.278425216674805,9.349943161010742,9.45494270324707,9.609943389892578,9.796462059020996,9.915461540222168,10.133980751037598,10.263980865478516,10.775501251220703,11.223539352416992,11.343539237976074,11.436538696289062,11.627058029174805,11.743058204650879,11.935057640075684,12.063577651977539,12.24357795715332,12.37309741973877,12.553096771240234,12.694616317749023,12.982616424560547,13.155136108398438,13.477655410766602,13.576655387878418,14.531693458557129,14.664214134216309,14.769213676452637,14.84421443939209,14.958732604980469,15.10273265838623,15.199732780456543,15.290251731872559,15.443251609802246,15.57125186920166,15.943770408630371,17.1888484954834,17.433849334716797,17.575366973876953,17.79436683654785,17.94188690185547,18.121885299682617,18.289405822753906,18.48140525817871,18.617406845092773,19.549962997436523]}
 $(function(){
 
-
+  var moves_meta = []
   $(document.body).click(function(e){
       if (!$(e.target).is(".move, .track")) {
         //$('.move-selected').removeClass("move-selected")
@@ -396,7 +396,7 @@ $(function(){
         width = 1;
       }
       
-      var move = $('<div id="move_'+move_count+'" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"></div>')
+      var move = $('<div id="move_'+move_count+'" class="move" style="left: '+left+'px; width:'+width+'px;" data-start="'+second_last_move_time+'" data-end="'+last_move_time+'"><div class="meta"></div></div>')
       track.append(move)
       
       function update_move(obj) {
@@ -466,10 +466,19 @@ $(function(){
       })
       
       
+      
       $('#tracks').click(function(e) {
           
           
           if ($(e.target).is(".move")) {
+             
+             if (e.ctrlKey) {
+               console.log("yay ctrl")
+               var meta = prompt("info?")
+               $(e.target).find(".meta").text(meta)
+               return
+             }
+             
              $('.move').removeClass("move-selected");
              
              $(e.target).addClass("move-selected");
@@ -632,6 +641,7 @@ $(function(){
    
    
    function redraw_tracks(width, selected_id) {
+      console.log(moves)
       move_count = 0;
       $('.track').remove();
       
@@ -856,7 +866,6 @@ $(function(){
 					perform_simple_info = time_objs[1]
 			
 			
-			
 			perform_simple_index = 0;
 			perform_simple = true;
    })
@@ -954,6 +963,7 @@ $(function(){
 <a href="#" id="unbind_move">Unbind Move</a>
 <a href="#" id="clone_object">Clone object</a>
 <a href="#" id="delete_object">delete object</a>
+<a href="#" id="delete_object">delete object</a>
 
 
   <div id="stage">
@@ -964,7 +974,7 @@ $(function(){
 
 </div>
 
-<audio  id="main-song" controls=true src="alma_25.mp3"></audio>
+<audio  id="main-song" controls=true src="estuche.mp3"></audio>
 
 
 <div id="time"></div>
