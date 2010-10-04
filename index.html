@@ -174,7 +174,9 @@ position: relative;
 var moves_meta = []
 
 $(function(){
-
+  custom = function() {}
+  initialize = function() {}
+  
   playing = false
   $(document.body).click(function(e){
       if (!$(e.target).is(".move, .track")) {
@@ -385,9 +387,16 @@ $(function(){
       
       if (e.keyCode == 32) {
         moves[current_track].push(audio.currentTime)
+        used_track = current_track
       } else {
-        moves[String.fromCharCode(e.keyCode).toLowerCase()].push(audio.currentTime)
+        specified_track = String.fromCharCode(e.keyCode).toLowerCase()
+        moves[specified_track].push(audio.currentTime)
+        used_track = specified_track
       }
+      
+      if (window.custom) {
+         custom(used_track, audio.currentTime, audio.currentTime, "", true, "")
+      } 
       
       
   }).keyup(function(e){
@@ -416,6 +425,9 @@ $(function(){
       //var track = $('#' + current_track)
       put_move(last_move_time, second_last_move_time , used_track, these_moves.length - 1)
       
+      if (window.custom) {
+         custom(used_track, audio.currentTime, audio.currentTime, "", false, "")
+      } 
       
   })
   
@@ -871,6 +883,8 @@ $(function(){
    })
    
    $('#stop_performance').click(function(){
+      
+      
       $('.perform_style').remove()
       audio.pause()
       audio.currentTime = 0;
@@ -933,7 +947,25 @@ $(function(){
    
    
    
-   
+  $("#play_custom").click(function(){
+    if ( window.initialize ) {
+           $("body").append('<div id="backdrop"><\/div>') 
+            $("#backdrop").click(function(){
+              $('#stop_performance').click();
+              
+            })
+            var raw = $('#custom').val() + "\nreturn custom: custom, initialize: initialize"
+            raw = CoffeeScript.compile(raw)
+            raw = eval(raw)
+            custom = raw.custom
+            initialize = raw.initialize
+            initialize()
+            
+            audio.currentTime = 0;
+			setTimeout(function(){audio.play()}, 1000);
+    }
+  
+  })
   $('#perform_custom').click(function(){
 			$('#stop').click()
 			
@@ -974,7 +1006,6 @@ $(function(){
 			
 			raw = CoffeeScript.compile(raw)
 			raw = eval(raw)
-			
 			custom = raw.custom
 			initialize = raw.initialize
 			
@@ -1052,6 +1083,9 @@ $(function(){
    add_track("g")
    add_track("h")
    add_track("j")
+   add_track("k")
+   add_track("l")
+
   /*
   var canvas = $('#canvas')[0]
   var ctx = canvas.getContext("2d")
@@ -1081,6 +1115,7 @@ $(function(){
 <a href="#" id="perform">Perform!</a>
 <a href="#" id="perform_simple">Perform! simple</a>
 <a href="#" id="perform_custom" style="font-weight: bold;">Perform! custom</a>
+<a href="#" id="play_custom" style="font-weight: bold;">play custom</a>
 <a href="#" id="stop_performance">Stop</a>
 <a href="#" id="unbind_move">Unbind Move</a>
 <a href="#" id="clone_object">Clone object</a>
@@ -1118,10 +1153,29 @@ Zoom<input type="text" id="zoom" /><br>
 
 
 <textarea rows = "20" cols="100" id="custom">
+img = $('<img src="toon2.bmp">')
+img.attr "src", "toon1.bmp"
+
+b = ""
 initialize = () ->
-  #add dom to $("#backgrop")
+  
+  #add dom to $("#backdrop")
+  b = $("#backdrop")
+  b.append(img)
+  console.log()
+  
 custom = (track, realtime, time, meta, onstart, index) ->
   #manipulate dom based of params
+  console.log track, onstart
+  if track is "main" and onstart
+    img.attr "src", "toon2.bmp"  
+  else if track is "main" and not onstart
+    img.attr "src", "toon1.bmp"
+   
+
+
+
+
 
 </textarea>
 
