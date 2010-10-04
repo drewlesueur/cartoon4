@@ -374,7 +374,7 @@ $(function(){
       if (e.keyCode == 8) {
           $('.move-selected')
       }
-      if ($(e.target).is("input")) return;
+      //if ($(e.target).is("input")) return;
       if (playing == false) return;
       
       e.preventDefault()
@@ -383,8 +383,11 @@ $(function(){
       //last key deal because keydown is fired as you hold the key down
       
       
-      moves[current_track].push(audio.currentTime)
-      
+      if (e.keyCode == 32) {
+        moves[current_track].push(audio.currentTime)
+      } else {
+        moves[String.fromCharCode(e.keyCode).toLowerCase()].push(audio.currentTime)
+      }
       
       
   }).keyup(function(e){
@@ -394,14 +397,21 @@ $(function(){
       
       
       last_key = "";
-      moves[current_track].push(audio.currentTime)
+      
+      if (e.keyCode == 32) {
+        moves[current_track].push(audio.currentTime)
+      } else {
+        specified_track = String.fromCharCode(e.keyCode).toLowerCase()
+        moves[specified_track].push(audio.currentTime)
+      }
+      
       
       
       var these_moves = moves[current_track]
       var last_move_time = _s(these_moves, -1)[0]
       var second_last_move_time = _s(these_moves, -2,1)[0]
-      var track = $('#' + current_track)
-      put_move(last_move_time, second_last_move_time , current_track, these_moves.length - 1)
+      //var track = $('#' + current_track)
+      put_move(last_move_time, second_last_move_time , specified_track, these_moves.length - 1)
       
       
   })
@@ -547,13 +557,14 @@ $(function(){
       })
       
       var track_count = -1;
-      $('#add_track').click(function(e){
+      
+      function add_track(id){
           
           track_count++;
           if (track_count == 0) {
-            var id = "main";
+            var id = "a";
           } else {
-            var id = prompt("track name");
+            var id = id || prompt("track name");
           }
           
           //var id = track_count;
@@ -567,6 +578,10 @@ $(function(){
           
           
           return false
+      }
+      
+      $('#add_track').click(function(e) {
+          add_track()
       })
       
    $('#zoom').change(function(){
@@ -1027,7 +1042,13 @@ $(function(){
 	 }
 
    
-   $('#add_track').click()
+   add_track("a")
+   add_track("s")
+   add_track("d")
+   add_track("f")
+   add_track("g")
+   add_track("h")
+   add_track("j")
   /*
   var canvas = $('#canvas')[0]
   var ctx = canvas.getContext("2d")
